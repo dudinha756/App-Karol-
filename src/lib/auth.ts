@@ -4,9 +4,17 @@ import { cookies } from "next/headers";
 const COOKIE_NAME = "forma_session";
 
 function secretKey() {
-  const raw = process.env.AUTH_SECRET || (process.env.NODE_ENV !== "production" ? "dev-only-secret-change-me" : "");
-  if (!raw) throw new Error("AUTH_SECRET não configurada.");
-  return new TextEncoder().encode(raw);
+  const raw =
+    process.env.AUTH_SECRET ||
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL ||
+    (process.env.NODE_ENV !== "production" ? "dev-only-secret-change-me" : "");
+
+  if (!raw) {
+    throw new Error("Nenhum segredo de sessão configurado. Defina DATABASE_URL ou AUTH_SECRET.");
+  }
+
+  return new TextEncoder().encode(`app-karol-session:${raw}`);
 }
 
 export async function createSession(userId: string) {
@@ -15,6 +23,7 @@ export async function createSession(userId: string) {
     .setIssuedAt()
     .setExpirationTime("7d")
     .sign(secretKey());
+
   const store = await cookies();
   store.set(COOKIE_NAME, token, {
     httpOnly: true,
@@ -27,7 +36,13 @@ export async function createSession(userId: string) {
 
 export async function clearSession() {
   const store = await cookies();
-  store.set(COOKIE_NAME, "", { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 0 });
+  store.set(COOKIE_NAME, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 0
+  });
 }
 
 export async function getSessionUserId() {
@@ -35,6 +50,7 @@ export async function getSessionUserId() {
     const store = await cookies();
     const token = store.get(COOKIE_NAME)?.value;
     if (!token) return null;
+
     const { payload } = await jwtVerify(token, secretKey());
     return typeof payload.userId === "string" ? payload.userId : null;
   } catch {
