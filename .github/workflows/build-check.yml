@@ -1,0 +1,41 @@
+name: Build Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-check.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install and build
+        shell: bash
+        run: |
+          set +e
+          npm install > install.log 2>&1
+          npm run build > build.log 2>&1
+          CODE=$?
+          if [ "$CODE" -ne 0 ]; then
+            {
+              echo "BUILD FAILED"
+              echo
+              tail -n 300 build.log
+            } > build-error.txt
+          else
+            echo "BUILD OK" > build-error.txt
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add build-error.txt
+          git commit -m "chore: capture build result [skip ci]" || true
+          git push
+          exit 0
