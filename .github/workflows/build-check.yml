@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/build-check.yml"
+      - "package.json"
+      - "src/**"
+      - "tsconfig.json"
 
 permissions:
   contents: write
