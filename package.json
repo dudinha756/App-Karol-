@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/verify-db.mjs && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "db:push": "drizzle-kit push",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "db:verify": "node scripts/verify-db.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
