@@ -1,3 +1,3 @@
 # App Karol
 
-Deploy de produção acionado para a Vercel após configuração do banco Neon.
+Deploy de produção acionado após confirmação da DATABASE_URL no ambiente Production da Vercel.
