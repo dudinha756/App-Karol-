@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, integer, numeric, date, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, integer, numeric, date, boolean, unique } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const users = pgTable("users", {
@@ -65,10 +65,46 @@ export const weightLogs = pgTable("weight_logs", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
 });
 
+export const dietDocuments = pgTable("diet_documents", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  fileName: text("file_name").notNull(),
+  rawText: text("raw_text"),
+  uploadedAt: timestamp("uploaded_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const dietMeals = pgTable("diet_meals", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  documentId: uuid("document_id").notNull().references(() => dietDocuments.id, { onDelete: "cascade" }),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  name: text("name").notNull(),
+  scheduledTime: text("scheduled_time"),
+  calories: numeric("calories", { precision: 8, scale: 2 }).default("0").notNull(),
+  itemsJson: text("items_json").default("[]").notNull(),
+  calculationNote: text("calculation_note"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const dietMealChecks = pgTable("diet_meal_checks", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  mealId: uuid("meal_id").notNull().references(() => dietMeals.id, { onDelete: "cascade" }),
+  logDate: date("log_date").notNull(),
+  completed: boolean("completed").default(false).notNull(),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+}, (t) => ({
+  uniqueMealCheck: unique("diet_meal_checks_unique").on(t.userId, t.mealId, t.logDate)
+}));
+
 export const userRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles, { fields: [users.id], references: [profiles.userId] }),
   foodEntries: many(foodEntries),
   workoutPlans: many(workoutPlans),
   workoutSessions: many(workoutSessions),
-  weightLogs: many(weightLogs)
+  weightLogs: many(weightLogs),
+  dietDocuments: many(dietDocuments),
+  dietMeals: many(dietMeals),
+  dietMealChecks: many(dietMealChecks)
 }));
