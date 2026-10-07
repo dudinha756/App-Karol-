@@ -1,1 +1,7 @@
-BUILD OK
+BUILD FAILED
+
+
+> app-karol@1.0.0 build
+> node scripts/verify-db.mjs && next build
+
+DATABASE_URL/POSTGRES_URL is not configured.
