@@ -6,7 +6,30 @@ export const users = pgTable("users", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
+  canInvite: boolean("can_invite").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const userInvitations = pgTable("user_invitations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  invitedBy: uuid("invited_by").notNull().references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const tacoFoods = pgTable("taco_foods", {
+  id: integer("id").primaryKey(),
+  description: text("description").notNull(),
+  searchName: text("search_name").notNull(),
+  category: text("category"),
+  energyKcal: numeric("energy_kcal", { precision: 12, scale: 6 }),
+  proteinG: numeric("protein_g", { precision: 12, scale: 6 }),
+  carbsG: numeric("carbs_g", { precision: 12, scale: 6 }),
+  fatG: numeric("fat_g", { precision: 12, scale: 6 }),
+  source: text("source").default("NEPA/UNICAMP TACO 4ª ed. (2011)").notNull()
 });
 
 export const profiles = pgTable("profiles", {
@@ -121,5 +144,6 @@ export const userRelations = relations(users, ({ one, many }) => ({
   weightLogs: many(weightLogs),
   dietDocuments: many(dietDocuments),
   dietMeals: many(dietMeals),
-  dietMealChecks: many(dietMealChecks)
+  dietMealChecks: many(dietMealChecks),
+  invitationsSent: many(userInvitations)
 }));
