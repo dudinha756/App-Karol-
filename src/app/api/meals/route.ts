@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { and, eq, desc } from "drizzle-orm";
 import { getSessionUserId } from "@/lib/auth";
 import { getDb } from "@/lib/db";
-import { foodEntries, foodLibrary } from "@/lib/schema";
+import { foodEntries, foodLibrary, tacoFoods } from "@/lib/schema";
 
 export async function GET(req:Request){
   const u=await getSessionUserId();
@@ -30,7 +30,26 @@ export async function POST(req:Request){
   let carbs=Number(b.carbs||0);
   let fat=Number(b.fat||0);
 
-  if(b.foodId){
+  if(b.tacoFoodId){
+    const [food]=await db.select().from(tacoFoods)
+      .where(eq(tacoFoods.id,Number(b.tacoFoodId)))
+      .limit(1);
+
+    if(!food)return NextResponse.json({error:"Alimento da TACO não encontrado."},{status:404});
+
+    quantity=Number(b.quantity||0);
+    if(!quantity||quantity<=0||quantity>5000){
+      return NextResponse.json({error:"Informe a quantidade consumida em gramas."},{status:400});
+    }
+
+    const factor=quantity/100;
+    name=food.description;
+    unit="g";
+    calories=Number(food.energyKcal||0)*factor;
+    protein=Number(food.proteinG||0)*factor;
+    carbs=Number(food.carbsG||0)*factor;
+    fat=Number(food.fatG||0)*factor;
+  } else if(b.foodId){
     const [food]=await db.select().from(foodLibrary)
       .where(and(eq(foodLibrary.id,String(b.foodId)),eq(foodLibrary.userId,u)))
       .limit(1);
