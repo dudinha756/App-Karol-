@@ -21,6 +21,20 @@ export const profiles = pgTable("profiles", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
 });
 
+export const foodLibrary = pgTable("food_library", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  referenceQuantity: numeric("reference_quantity", { precision: 8, scale: 2 }).default("100").notNull(),
+  referenceUnit: text("reference_unit").default("g").notNull(),
+  calories: numeric("calories", { precision: 8, scale: 2 }).default("0").notNull(),
+  protein: numeric("protein", { precision: 8, scale: 2 }).default("0").notNull(),
+  carbs: numeric("carbs", { precision: 8, scale: 2 }).default("0").notNull(),
+  fat: numeric("fat", { precision: 8, scale: 2 }).default("0").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
+});
+
 export const foodEntries = pgTable("food_entries", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -100,6 +114,7 @@ export const dietMealChecks = pgTable("diet_meal_checks", {
 
 export const userRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles, { fields: [users.id], references: [profiles.userId] }),
+  foodLibrary: many(foodLibrary),
   foodEntries: many(foodEntries),
   workoutPlans: many(workoutPlans),
   workoutSessions: many(workoutSessions),
