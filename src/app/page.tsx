@@ -18,7 +18,7 @@ export default function Home() {
             <Logo />
             <div className="flex items-center gap-2">
               <Link href="/login" className="rounded-xl px-4 py-2 text-sm font-bold text-[#234a48] hover:bg-white">Entrar</Link>
-              <Link href="/register" className="btn-primary text-sm">Criar conta</Link>
+              <Link href="/login" className="btn-primary text-sm">Acessar app</Link>
             </div>
           </nav>
           <div className="grid gap-10 py-20 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:py-28">
@@ -33,7 +33,7 @@ export default function Home() {
                 O Forma organiza suas refeições, treinos, peso e estimativas de gasto energético para você enxergar a tendência que realmente importa ao longo das semanas.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link href="/register" className="btn-primary inline-flex items-center gap-2 px-5 py-3">Começar agora <ArrowRight size={18} /></Link>
+                <Link href="/login" className="btn-primary inline-flex items-center gap-2 px-5 py-3">Entrar no App Karol <ArrowRight size={18} /></Link>
                 <a href="#recursos" className="btn-secondary px-5 py-3">Ver recursos</a>
               </div>
               <p className="mt-4 text-xs text-[#829391]">Cálculos energéticos são estimativas e devem ser ajustados pela evolução real.</p>
