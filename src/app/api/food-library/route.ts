@@ -26,10 +26,11 @@ export async function POST(req: Request) {
   const name = String(body.name || "").trim();
   const referenceQuantity = Number(body.referenceQuantity);
   const referenceUnit = String(body.referenceUnit || "g").trim();
-  const calories = Number(body.calories);
-  const protein = Number(body.protein);
-  const carbs = Number(body.carbs);
-  const fat = Number(body.fat);
+  const protein = Number(body.protein || 0);
+  const carbs = Number(body.carbs || 0);
+  const fat = Number(body.fat || 0);
+  const enteredCalories = body.calories === "" || body.calories == null ? NaN : Number(body.calories);
+  const calories = Number.isFinite(enteredCalories) ? enteredCalories : protein * 4 + carbs * 4 + fat * 9;
 
   if (!name || !referenceQuantity || referenceQuantity <= 0) {
     return NextResponse.json({ error: "Informe o alimento e a porção de referência." }, { status: 400 });
