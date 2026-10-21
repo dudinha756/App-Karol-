@@ -7,7 +7,10 @@ type Progress={id:string;logDate:string;setsCompleted?:number|null;repsCompleted
 type Exercise={id:string;name:string;sets?:number|null;reps?:string|null;restSeconds?:number|null;notes?:string|null;progress:Progress[]};
 type Routine={id:string;name:string;sourceDocumentId?:string|null;createdAt:string;exercises:Exercise[]};
 
-function today(){return new Date().toISOString().slice(0,10)}
+function today(){
+  const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
 
 export function StrengthPanel(){
   const fileRef=useRef<HTMLInputElement>(null);
