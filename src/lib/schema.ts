@@ -73,6 +73,64 @@ export const foodEntries = pgTable("food_entries", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
 });
 
+export const calendarEvents = pgTable("calendar_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  eventType: text("event_type").default("compromisso").notNull(),
+  startDate: date("start_date").notNull(),
+  startTime: text("start_time").notNull(),
+  durationMinutes: integer("duration_minutes").default(60).notNull(),
+  recurrence: text("recurrence").default("none").notNull(),
+  recurrenceUntil: date("recurrence_until"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const strengthDocuments = pgTable("strength_documents", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  fileName: text("file_name").notNull(),
+  rawText: text("raw_text"),
+  uploadedAt: timestamp("uploaded_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const strengthRoutines = pgTable("strength_routines", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  sourceDocumentId: uuid("source_document_id").references(() => strengthDocuments.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const strengthExercises = pgTable("strength_exercises", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  routineId: uuid("routine_id").notNull().references(() => strengthRoutines.id, { onDelete: "cascade" }),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  name: text("name").notNull(),
+  sets: integer("sets"),
+  reps: text("reps"),
+  restSeconds: integer("rest_seconds"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const strengthProgressLogs = pgTable("strength_progress_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  exerciseId: uuid("exercise_id").notNull().references(() => strengthExercises.id, { onDelete: "cascade" }),
+  logDate: date("log_date").notNull(),
+  setsCompleted: integer("sets_completed"),
+  repsCompleted: text("reps_completed"),
+  weightKg: numeric("weight_kg", { precision: 7, scale: 2 }),
+  rpe: numeric("rpe", { precision: 4, scale: 1 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+});
+
 export const workoutPlans = pgTable("workout_plans", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -139,6 +197,11 @@ export const userRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles, { fields: [users.id], references: [profiles.userId] }),
   foodLibrary: many(foodLibrary),
   foodEntries: many(foodEntries),
+  calendarEvents: many(calendarEvents),
+  strengthDocuments: many(strengthDocuments),
+  strengthRoutines: many(strengthRoutines),
+  strengthExercises: many(strengthExercises),
+  strengthProgressLogs: many(strengthProgressLogs),
   workoutPlans: many(workoutPlans),
   workoutSessions: many(workoutSessions),
   weightLogs: many(weightLogs),
