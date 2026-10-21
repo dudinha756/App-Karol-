@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Apple, CalendarDays, ClipboardList, Dumbbell, FileText, Home, LogOut, MoreHorizontal, Plus, Settings, TrendingUp, Users, X } from "lucide-react";
+import { Apple, CalendarDays, ClipboardList, Dumbbell, FileText, Home, LogOut, MoreHorizontal, Plus, TrendingUp, Users, X } from "lucide-react";
 import { Logo } from "./logo";
 import { DietPanel } from "./diet-panel";
 import { FoodEntryForm } from "./food-entry-form";
@@ -17,7 +17,10 @@ type Dash={
   weightTrend:any[];
 };
 
-const today=function(){return new Date().toISOString().slice(0,10)};
+const today=function(){
+  const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+};
 
 export function AppShell(){
   const [view,setView]=useState("Hoje");
@@ -90,7 +93,6 @@ export function AppShell(){
         </nav>
       </div>
       <div className="absolute bottom-5 left-5 right-5 border-t border-[#edf2f0] pt-3">
-        <button className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-[#647673] hover:bg-[#f4f7f6]"><Settings size={18}/>Configurações</button>
         <button onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-[#8a5b5b] hover:bg-red-50"><LogOut size={18}/>Sair</button>
       </div>
     </aside>
@@ -105,7 +107,7 @@ export function AppShell(){
           </div>
           <div className="flex shrink-0 gap-2">
             <button onClick={function(){setModal("food")}} className="btn-secondary hidden items-center gap-2 sm:inline-flex"><Plus size={16}/>Refeição</button>
-            <button onClick={function(){setModal("workout")}} className="btn-primary inline-flex items-center gap-2"><Plus size={16}/><span className="hidden xs:inline">Treino</span><span className="xs:hidden">Atividade</span></button>
+            <button onClick={function(){setModal("workout")}} className="btn-primary inline-flex items-center gap-2"><Plus size={16}/><span>Treino</span></button>
           </div>
         </div>
       </header>
