@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Apple, Dumbbell, FileText, Home, LogOut, Plus, Settings, TrendingUp, Users, X } from "lucide-react";
+import { Apple, CalendarDays, ClipboardList, Dumbbell, FileText, Home, LogOut, MoreHorizontal, Plus, Settings, TrendingUp, Users, X } from "lucide-react";
 import { Logo } from "./logo";
 import { DietPanel } from "./diet-panel";
 import { FoodEntryForm } from "./food-entry-form";
 import { UserInvitesPanel } from "./user-invites-panel";
+import { CalendarPanel } from "./calendar-panel";
+import { StrengthPanel } from "./strength-panel";
 
 type Dash={
   profile:{name:string;weightKg:number;canInvite:boolean};
@@ -15,13 +17,14 @@ type Dash={
   weightTrend:any[];
 };
 
-const today=()=>new Date().toISOString().slice(0,10);
+const today=function(){return new Date().toISOString().slice(0,10)};
 
 export function AppShell(){
   const [view,setView]=useState("Hoje");
   const [data,setData]=useState<Dash|null>(null);
   const [modal,setModal]=useState<"food"|"workout"|"weight"|null>(null);
   const [loading,setLoading]=useState(true);
+  const [moreOpen,setMoreOpen]=useState(false);
 
   async function load(silent=false){
     if(!silent)setLoading(true);
@@ -32,16 +35,40 @@ export function AppShell(){
     if(!silent)setLoading(false);
   }
 
-  useEffect(()=>{load()},[]);
+  useEffect(function(){load()},[]);
 
-  const nav=[
+  const desktopNav=[
     {name:"Hoje",icon:Home},
-    {name:"Minha dieta",icon:FileText},
+    {name:"Agenda",icon:CalendarDays},
     {name:"Alimentação",icon:Apple},
+    {name:"Minha dieta",icon:FileText},
     {name:"Treinos",icon:Dumbbell},
+    {name:"Musculação",icon:ClipboardList},
     {name:"Progresso",icon:TrendingUp},
     ...(data?.profile.canInvite?[{name:"Usuários",icon:Users}]:[])
   ];
+
+  const mobilePrimary=[
+    {name:"Hoje",icon:Home},
+    {name:"Agenda",icon:CalendarDays},
+    {name:"Alimentação",icon:Apple},
+    {name:"Treinos",icon:Dumbbell}
+  ];
+
+  const moreItems=[
+    {name:"Minha dieta",icon:FileText,description:"Plano alimentar e checklist"},
+    {name:"Musculação",icon:ClipboardList,description:"Ficha, cargas e evolução"},
+    {name:"Progresso",icon:TrendingUp,description:"Peso e tendência"},
+    ...(data?.profile.canInvite?[{name:"Usuários",icon:Users,description:"Convites e acessos"}]:[])
+  ];
+
+  const moreActive=moreItems.some(function(x){return x.name===view});
+
+  function chooseView(name:string){
+    setView(name);
+    setMoreOpen(false);
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
 
   async function logout(){
     await fetch("/api/auth/logout",{method:"POST"});
@@ -51,76 +78,104 @@ export function AppShell(){
   return <div className="min-h-screen bg-[#f6f8f7]">
     <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-[#e2eae8] bg-white p-5 lg:block">
       <Logo/>
-      <nav className="mt-9 space-y-1">
-        {nav.map(({name,icon:Icon})=><button key={name} onClick={()=>setView(name)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold ${view===name?"bg-[#e7f3ee] text-[#145c5a]":"text-[#647673] hover:bg-[#f4f7f6]"}`}>
-          <Icon size={18}/>{name}
-        </button>)}
-      </nav>
-      <div className="absolute bottom-5 left-5 right-5">
+      <div className="mt-8">
+        <p className="px-3 text-[10px] font-black uppercase tracking-[.18em] text-[#9aa9a6]">Navegação</p>
+        <nav className="mt-2 space-y-1">
+          {desktopNav.map(function(item){
+            const Icon=item.icon;
+            return <button key={item.name} onClick={function(){chooseView(item.name)}} className={"flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold transition "+(view===item.name?"bg-[#e7f3ee] text-[#145c5a]":"text-[#647673] hover:bg-[#f4f7f6]")}>
+              <Icon size={18}/>{item.name}
+            </button>
+          })}
+        </nav>
+      </div>
+      <div className="absolute bottom-5 left-5 right-5 border-t border-[#edf2f0] pt-3">
         <button className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-[#647673] hover:bg-[#f4f7f6]"><Settings size={18}/>Configurações</button>
         <button onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-[#8a5b5b] hover:bg-red-50"><LogOut size={18}/>Sair</button>
       </div>
     </aside>
 
-    <main className="pb-24 lg:ml-64 lg:pb-8">
-      <header className="sticky top-0 z-20 border-b border-[#e3ebe8] bg-[#f6f8f7]/90 px-5 py-4 backdrop-blur sm:px-8">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
+    <main className="pb-28 lg:ml-64 lg:pb-8">
+      <header className="sticky top-0 z-20 border-b border-[#e3ebe8] bg-[#f6f8f7]/92 px-4 py-3 backdrop-blur sm:px-8 sm:py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
           <div className="lg:hidden"><Logo compact/></div>
-          <div>
+          <div className="min-w-0 flex-1 lg:flex-none">
             <p className="hidden text-xs font-black uppercase tracking-[.18em] text-[#7f918e] lg:block">App Karol</p>
-            <h1 className="text-xl font-black tracking-tight">{view}</h1>
+            <h1 className="truncate text-lg font-black tracking-tight sm:text-xl">{view}</h1>
           </div>
-          <div className="flex gap-2">
-            <button onClick={()=>setModal("food")} className="btn-secondary hidden items-center gap-2 sm:inline-flex"><Plus size={16}/>Refeição</button>
-            <button onClick={()=>setModal("workout")} className="btn-primary inline-flex items-center gap-2"><Plus size={16}/>Treino</button>
+          <div className="flex shrink-0 gap-2">
+            <button onClick={function(){setModal("food")}} className="btn-secondary hidden items-center gap-2 sm:inline-flex"><Plus size={16}/>Refeição</button>
+            <button onClick={function(){setModal("workout")}} className="btn-primary inline-flex items-center gap-2"><Plus size={16}/><span className="hidden xs:inline">Treino</span><span className="xs:hidden">Atividade</span></button>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-6">
         {loading||!data
           ? <div className="card p-10 text-center text-[#6f817e]">Carregando seu painel...</div>
           : <View name={view} data={data} setModal={setModal}/>}
       </div>
     </main>
 
-    <nav className="fixed inset-x-0 bottom-0 z-30 grid border-t border-[#dfe8e5] bg-white px-1 py-2 lg:hidden" style={{gridTemplateColumns:`repeat(${nav.length},minmax(0,1fr))`}}>
-      {nav.map(({name,icon:Icon})=><button key={name} onClick={()=>setView(name)} className={`grid place-items-center gap-1 rounded-xl py-2 text-[10px] font-bold ${view===name?"text-[#145c5a]":"text-[#7d8d8a]"}`}>
-        <Icon size={18}/><span className="max-w-full truncate px-1">{name}</span>
-      </button>)}
+    <nav className="mobile-nav lg:hidden">
+      {mobilePrimary.map(function(item){
+        const Icon=item.icon;
+        return <button key={item.name} onClick={function(){chooseView(item.name)}} className={"mobile-nav-item "+(view===item.name?"mobile-nav-active":"")}>
+          <Icon size={19}/><span>{item.name}</span>
+        </button>
+      })}
+      <button onClick={function(){setMoreOpen(true)}} className={"mobile-nav-item "+(moreActive?"mobile-nav-active":"")}>
+        <MoreHorizontal size={20}/><span>Mais</span>
+      </button>
     </nav>
 
-    {modal&&<EntryModal type={modal} close={()=>setModal(null)} done={()=>{setModal(null);load(true)}} weight={data?.profile.weightKg||50}/>}
+    {moreOpen&&<div className="modal-backdrop lg:hidden" onClick={function(){setMoreOpen(false)}}>
+      <div className="modal-sheet" onClick={function(e){e.stopPropagation()}}>
+        <div className="mb-5 flex items-center justify-between"><div><p className="eyebrow">Mais recursos</p><h2 className="text-xl font-black">O que você quer abrir?</h2></div><button onClick={function(){setMoreOpen(false)}} className="icon-btn"><X size={18}/></button></div>
+        <div className="grid gap-2">
+          {moreItems.map(function(item){
+            const Icon=item.icon;
+            return <button key={item.name} onClick={function(){chooseView(item.name)}} className="flex items-center gap-3 rounded-2xl border border-[#e3ebe8] p-4 text-left hover:bg-[#f6f9f8]">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#e7f3ee] text-[#145c5a]"><Icon size={19}/></span>
+              <div><p className="font-black">{item.name}</p><p className="mt-1 text-xs text-[#738581]">{item.description}</p></div>
+            </button>
+          })}
+        </div>
+      </div>
+    </div>}
+
+    {modal&&<EntryModal type={modal} close={function(){setModal(null)}} done={function(){setModal(null);load(true)}} weight={data?.profile.weightKg||50}/>}
   </div>;
 }
 
 function Ring({value,max,label}:{value:number;max:number;label:string}){
   const p=Math.min(100,Math.round(value/max*100||0));
   return <div>
-    <div className="mb-1 flex justify-between text-xs font-bold"><span>{label}</span><span>{Math.round(value)} / {Math.round(max)} g</span></div>
-    <div className="h-2 rounded-full bg-[#e8efed]"><div className="h-2 rounded-full bg-[#145c5a]" style={{width:p+"%"}}/></div>
+    <div className="mb-1 flex justify-between text-xs font-bold"><span>{label}</span><span>{Math.round(value)+" / "+Math.round(max)+" g"}</span></div>
+    <div className="h-2 rounded-full bg-[#e8efed]"><div className="h-2 rounded-full bg-[#145c5a] transition-all" style={{width:p+"%"}}/></div>
   </div>;
 }
 
 function View({name,data,setModal}:{name:string;data:Dash;setModal:(x:any)=>void}){
   const s=data.summary;
 
+  if(name==="Agenda")return <CalendarPanel/>;
   if(name==="Minha dieta")return <DietPanel/>;
+  if(name==="Musculação")return <StrengthPanel/>;
   if(name==="Usuários")return <UserInvitesPanel/>;
 
   if(name==="Hoje")return <div className="space-y-5">
-    <section className="grid gap-4 md:grid-cols-3">
-      {[["Consumidas",s.consumed,"kcal"],["Gasto estimado",s.maintenance,"kcal"],["Saldo",s.balance,"kcal"]].map(([l,v,u]:any)=><div className="card p-5" key={l}>
-        <p className="text-xs font-black uppercase tracking-[.15em] text-[#82928f]">{l}</p>
-        <div className="mt-2 kpi-number text-4xl font-black">{Math.round(v)}</div>
-        <p className="mt-1 text-xs text-[#7f918e]">{u}</p>
-      </div>)}
+    <section className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+      {[["Consumidas",s.consumed,"kcal"],["Gasto estimado",s.maintenance,"kcal"],["Saldo",s.balance,"kcal"]].map(function(item){
+        const l=item[0],v=item[1] as number,u=item[2];
+        return <div className="metric-card" key={String(l)}><p className="metric-label">{l}</p><div className="metric-value">{Math.round(v)}</div><p className="metric-help">{u}</p></div>
+      })}
     </section>
 
     <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
-      <div className="card p-6">
-        <div className="flex justify-between">
-          <div><p className="text-sm font-black text-[#145c5a]">Meta do dia</p><h2 className="mt-1 text-2xl font-black">{Math.round(s.target)} kcal</h2></div>
+      <div className="card p-5 sm:p-6">
+        <div className="flex justify-between gap-3">
+          <div><p className="eyebrow">Meta do dia</p><h2 className="mt-1 text-2xl font-black">{Math.round(s.target)+" kcal"}</h2></div>
           <span className="h-fit rounded-full bg-[#e3f3ec] px-3 py-1 text-xs font-black text-[#145c5a]">estimativa</span>
         </div>
         <div className="mt-6 space-y-4">
@@ -130,64 +185,64 @@ function View({name,data,setModal}:{name:string;data:Dash;setModal:(x:any)=>void
         </div>
       </div>
 
-      <div className="card p-6">
+      <div className="card p-5 sm:p-6">
         <p className="text-sm font-black">Ações rápidas</p>
-        <div className="mt-4 grid gap-3">
-          <button onClick={()=>setModal("food")} className="btn-secondary text-left">+ Registrar refeição</button>
-          <button onClick={()=>setModal("workout")} className="btn-secondary text-left">+ Registrar treino</button>
-          <button onClick={()=>setModal("weight")} className="btn-secondary text-left">+ Atualizar peso</button>
+        <div className="mt-4 grid gap-2">
+          <button onClick={function(){setModal("food")}} className="quick-action"><Plus size={17}/>Registrar refeição</button>
+          <button onClick={function(){setModal("workout")}} className="quick-action"><Plus size={17}/>Registrar atividade</button>
+          <button onClick={function(){setModal("weight")}} className="quick-action"><Plus size={17}/>Atualizar peso</button>
         </div>
-        <p className="mt-4 text-xs leading-5 text-[#80918e]">O gasto de exercício é estimado por MET e peso corporal. Use a tendência de semanas como referência principal.</p>
+        <p className="mt-4 text-xs leading-5 text-[#80918e]">Use os registros diários como referência e acompanhe a tendência ao longo das semanas.</p>
       </div>
     </section>
   </div>;
 
   if(name==="Alimentação")return <section className="card overflow-hidden">
-    <div className="flex items-center justify-between border-b border-[#e7eeec] p-5">
-      <div><h2 className="text-xl font-black">Refeições de hoje</h2><p className="text-sm text-[#768885]">{data.foods.length} itens registrados</p></div>
-      <button onClick={()=>setModal("food")} className="btn-primary">+ Adicionar</button>
+    <div className="flex items-center justify-between gap-3 border-b border-[#e7eeec] p-4 sm:p-5">
+      <div><h2 className="text-xl font-black">Refeições de hoje</h2><p className="text-sm text-[#768885]">{data.foods.length+" itens registrados"}</p></div>
+      <button onClick={function(){setModal("food")}} className="btn-primary shrink-0">+ Adicionar</button>
     </div>
-    {data.foods.length?data.foods.map((f:any)=><div key={f.id} className="grid grid-cols-[1fr_auto] gap-4 border-b border-[#edf2f0] p-5">
-      <div><p className="font-black">{f.name}</p><p className="mt-1 text-xs text-[#7d8e8b]">{f.mealType} · {f.quantity} {f.unit}</p></div>
-      <div className="text-right"><p className="font-black">{Math.round(+f.calories)} kcal</p><p className="text-xs text-[#7d8e8b]">P {Math.round(+f.protein)} · C {Math.round(+f.carbs)} · G {Math.round(+f.fat)}</p></div>
-    </div>):<Empty icon={Apple} text="Nenhuma refeição registrada hoje."/>}
+    {data.foods.length?data.foods.map(function(f:any){return <div key={f.id} className="grid grid-cols-[1fr_auto] gap-4 border-b border-[#edf2f0] p-4 sm:p-5">
+      <div className="min-w-0"><p className="truncate font-black">{f.name}</p><p className="mt-1 text-xs text-[#7d8e8b]">{f.mealType+" · "+f.quantity+" "+f.unit}</p></div>
+      <div className="text-right"><p className="font-black">{Math.round(+f.calories)+" kcal"}</p><p className="text-xs text-[#7d8e8b]">{"P "+Math.round(+f.protein)+" · C "+Math.round(+f.carbs)+" · G "+Math.round(+f.fat)}</p></div>
+    </div>}):<Empty icon={Apple} text="Nenhuma refeição registrada hoje."/>}
   </section>;
 
   if(name==="Treinos")return <section className="card overflow-hidden">
-    <div className="flex items-center justify-between border-b border-[#e7eeec] p-5">
-      <div><h2 className="text-xl font-black">Treinos de hoje</h2><p className="text-sm text-[#768885]">{Math.round(s.exercise)} kcal de exercício estimadas</p></div>
-      <button onClick={()=>setModal("workout")} className="btn-primary">+ Adicionar</button>
+    <div className="flex items-center justify-between gap-3 border-b border-[#e7eeec] p-4 sm:p-5">
+      <div><h2 className="text-xl font-black">Atividades de hoje</h2><p className="text-sm text-[#768885]">{Math.round(s.exercise)+" kcal de exercício estimadas"}</p></div>
+      <button onClick={function(){setModal("workout")}} className="btn-primary shrink-0">+ Adicionar</button>
     </div>
-    {data.workouts.length?data.workouts.map((w:any)=><div key={w.id} className="flex items-center justify-between border-b border-[#edf2f0] p-5">
-      <div><p className="font-black">{w.type}</p><p className="text-xs text-[#7d8e8b]">{w.durationMinutes} min · {w.intensity}</p></div>
-      <div className="text-right font-black">≈ {Math.round(+w.caloriesEstimated)} kcal</div>
-    </div>):<Empty icon={Dumbbell} text="Nenhum treino registrado hoje."/>}
+    {data.workouts.length?data.workouts.map(function(w:any){return <div key={w.id} className="flex items-center justify-between gap-4 border-b border-[#edf2f0] p-4 sm:p-5">
+      <div><p className="font-black">{w.type}</p><p className="text-xs text-[#7d8e8b]">{w.durationMinutes+" min · "+w.intensity}</p></div>
+      <div className="shrink-0 text-right font-black">{"≈ "+Math.round(+w.caloriesEstimated)+" kcal"}</div>
+    </div>}):<Empty icon={Dumbbell} text="Nenhuma atividade registrada hoje."/>}
   </section>;
 
   return <div className="grid gap-5 lg:grid-cols-[1fr_.8fr]">
-    <section className="card p-6">
+    <section className="card p-5 sm:p-6">
       <h2 className="text-xl font-black">Evolução de peso</h2>
       <p className="mt-1 text-sm text-[#758783]">Últimos registros</p>
       <div className="mt-6 flex h-48 items-end gap-2">
-        {data.weightTrend.length?data.weightTrend.map((x:any,i:number)=>{
-          const vals=data.weightTrend.map((z:any)=>+z.weightKg);
-          const mn=Math.min(...vals)-.5,mx=Math.max(...vals)+.5;
+        {data.weightTrend.length?data.weightTrend.map(function(x:any,i:number){
+          const vals=data.weightTrend.map(function(z:any){return +z.weightKg});
+          const mn=Math.min.apply(null,vals)-.5,mx=Math.max.apply(null,vals)+.5;
           const h=25+((+x.weightKg-mn)/(mx-mn||1))*70;
-          return <div key={i} className="flex flex-1 flex-col items-center gap-2"><div className="w-full rounded-t-lg bg-[#79b9a2]" style={{height:h+"%"}}/><span className="text-[10px] font-bold text-[#748683]">{+x.weightKg}</span></div>;
+          return <div key={i} className="flex flex-1 flex-col items-center gap-2"><div className="w-full rounded-t-lg bg-[#79b9a2]" style={{height:h+"%"}}/><span className="text-[10px] font-bold text-[#748683]">{+x.weightKg}</span></div>
         }):<p className="m-auto text-sm text-[#7a8c89]">Registre seu peso para ver a tendência.</p>}
       </div>
     </section>
 
-    <section className="card p-6">
-      <p className="text-sm font-black text-[#145c5a]">Peso atual</p>
+    <section className="card p-5 sm:p-6">
+      <p className="eyebrow">Peso atual</p>
       <div className="mt-2 kpi-number text-5xl font-black">{data.profile.weightKg}<span className="ml-1 text-lg">kg</span></div>
-      <button onClick={()=>setModal("weight")} className="btn-primary mt-6 w-full">Atualizar peso</button>
+      <button onClick={function(){setModal("weight")}} className="btn-primary mt-6 w-full">Atualizar peso</button>
     </section>
   </div>;
 }
 
 function Empty({icon:Icon,text}:{icon:any;text:string}){
-  return <div className="grid place-items-center gap-3 p-12 text-center text-[#7c8d8a]"><Icon size={28}/><p className="text-sm">{text}</p></div>;
+  return <div className="grid place-items-center gap-3 p-10 text-center text-[#7c8d8a] sm:p-12"><Icon size={28}/><p className="text-sm">{text}</p></div>;
 }
 
 function EntryModal({type,close,done,weight}:{type:"food"|"workout"|"weight";close:()=>void;done:()=>void;weight:number}){
@@ -203,28 +258,28 @@ function EntryModal({type,close,done,weight}:{type:"food"|"workout"|"weight";clo
     const r=await fetch(url,{
       method:"POST",
       headers:{"content-type":"application/json"},
-      body:JSON.stringify({...body,logDate:today(),weightKg:type==="weight"?body.weightKg:undefined,currentWeightKg:weight})
+      body:JSON.stringify(Object.assign({},body,{logDate:today(),weightKg:type==="weight"?body.weightKg:undefined,currentWeightKg:weight}))
     });
-    const result=await r.json().catch(()=>({}));
+    const result=await r.json().catch(function(){return {}});
     setBusy(false);
     if(r.ok)done(); else setError(result.error||"Não consegui salvar.");
   }
 
-  return <div className="fixed inset-0 z-50 grid place-items-end bg-black/30 p-0 sm:place-items-center sm:p-5">
-    <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-3xl">
+  return <div className="modal-backdrop">
+    <div className="modal-sheet">
       <div className="mb-5 flex items-center justify-between">
-        <h2 className="text-xl font-black">{type==="food"?"Adicionar refeição":type==="workout"?"Registrar treino":"Atualizar peso"}</h2>
-        <button onClick={close} className="rounded-xl p-2 hover:bg-[#f1f5f3]"><X size={19}/></button>
+        <div><p className="eyebrow">{type==="food"?"Alimentação":type==="workout"?"Atividade":"Progresso"}</p><h2 className="text-xl font-black">{type==="food"?"Adicionar refeição":type==="workout"?"Registrar atividade":"Atualizar peso"}</h2></div>
+        <button onClick={close} className="icon-btn"><X size={19}/></button>
       </div>
 
       {type==="food"?<FoodEntryForm done={done}/>:<form onSubmit={submit} className="grid gap-3">
         {error&&<div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{error}</div>}
         {type==="workout"&&<>
-          <select className="input" name="type"><option>Musculação</option><option>Jiu-jitsu</option><option>Muay Thai</option><option>Corrida</option><option>Caminhada</option><option>Outro</option></select>
-          <input className="input" name="durationMinutes" type="number" placeholder="Duração em minutos" required/>
-          <select className="input" name="intensity"><option value="moderate">Moderada</option><option value="light">Leve</option><option value="high">Alta</option></select>
+          <label><span className="field-label">Tipo</span><select className="input" name="type"><option>Musculação</option><option>Jiu-jitsu</option><option>Muay Thai</option><option>Corrida</option><option>Caminhada</option><option>Outro</option></select></label>
+          <label><span className="field-label">Duração</span><input className="input" name="durationMinutes" type="number" min="1" placeholder="Minutos" required/></label>
+          <label><span className="field-label">Intensidade</span><select className="input" name="intensity"><option value="moderate">Moderada</option><option value="light">Leve</option><option value="high">Alta</option></select></label>
         </>}
-        {type==="weight"&&<input className="input" name="weightKg" type="number" step=".1" defaultValue={weight} required/>}
+        {type==="weight"&&<label><span className="field-label">Peso (kg)</span><input className="input" name="weightKg" type="number" step=".1" defaultValue={weight} required/></label>}
         <button disabled={busy} className="btn-primary mt-2 w-full">{busy?"Salvando...":"Salvar"}</button>
       </form>}
     </div>
