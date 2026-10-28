@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import pdf from "pdf-parse";
 import { getSessionUserId } from "@/lib/auth";
 import { getDb } from "@/lib/db";
-import { dietDocuments, dietMeals, dietMealChecks } from "@/lib/schema";
+import {
+  dietDocuments,
+  dietMeals,
+  dietMealChecks,
+  dietChoiceGroups,
+  dietChoiceOptions,
+  dietOptionSelections
+} from "@/lib/schema";
 import { parseDietText } from "@/lib/diet-parser";
 
 export const runtime = "nodejs";
@@ -25,7 +32,16 @@ export async function GET(req: Request) {
     .orderBy(desc(dietDocuments.uploadedAt))
     .limit(1);
 
-  if (!doc) return NextResponse.json({ document: null, meals: [], completedCount: 0, totalCalories: 0 });
+  if (!doc) {
+    return NextResponse.json({
+      document: null,
+      meals: [],
+      completedCount: 0,
+      totalCalories: 0,
+      selectedNutrition: zeroNutrition(),
+      completedNutrition: zeroNutrition()
+    });
+  }
 
   const meals = await db
     .select()
@@ -33,24 +49,102 @@ export async function GET(req: Request) {
     .where(and(eq(dietMeals.userId, userId), eq(dietMeals.documentId, doc.id)))
     .orderBy(dietMeals.sortOrder);
 
-  const checks = await db
+  const mealIds = meals.map(m => m.id);
+
+  const checks = mealIds.length ? await db
     .select()
     .from(dietMealChecks)
-    .where(and(eq(dietMealChecks.userId, userId), eq(dietMealChecks.logDate, date)));
+    .where(and(
+      eq(dietMealChecks.userId, userId),
+      eq(dietMealChecks.logDate, date),
+      inArray(dietMealChecks.mealId, mealIds)
+    )) : [];
+
+  const groups = mealIds.length ? await db
+    .select()
+    .from(dietChoiceGroups)
+    .where(and(
+      eq(dietChoiceGroups.userId, userId),
+      inArray(dietChoiceGroups.mealId, mealIds)
+    ))
+    .orderBy(dietChoiceGroups.sortOrder) : [];
+
+  const groupIds = groups.map(g => g.id);
+
+  const options = groupIds.length ? await db
+    .select()
+    .from(dietChoiceOptions)
+    .where(and(
+      eq(dietChoiceOptions.userId, userId),
+      inArray(dietChoiceOptions.groupId, groupIds)
+    ))
+    .orderBy(dietChoiceOptions.sortOrder) : [];
+
+  const selections = mealIds.length ? await db
+    .select()
+    .from(dietOptionSelections)
+    .where(and(
+      eq(dietOptionSelections.userId, userId),
+      eq(dietOptionSelections.logDate, date),
+      inArray(dietOptionSelections.mealId, mealIds)
+    )) : [];
 
   const checkMap = new Map(checks.map(c => [c.mealId, c]));
-  const result = meals.map(m => ({
-    ...m,
-    items: safeItems(m.itemsJson),
-    completed: checkMap.get(m.id)?.completed ?? false,
-    completedAt: checkMap.get(m.id)?.completedAt ?? null
-  }));
+  const selectionMap = new Map(selections.map(s => [s.optionId, s]));
+
+  const result = meals.map(meal => {
+    const mealGroups = groups
+      .filter(group => group.mealId === meal.id)
+      .map(group => {
+        const groupOptions = options
+          .filter(option => option.groupId === group.id)
+          .map(option => {
+            const selection = selectionMap.get(option.id);
+            const quantity = Number(selection?.quantity ?? option.defaultQuantity);
+            const selected = Boolean(selection?.selected);
+            return {
+              ...option,
+              selected,
+              quantity,
+              nutrition: calculateNutrition(option, quantity)
+            };
+          });
+
+        return {
+          ...group,
+          options: groupOptions,
+          selectedOptionId: groupOptions.find(option => option.selected)?.id ?? null
+        };
+      });
+
+    const selectedOptions = mealGroups.flatMap(group => group.options.filter(option => option.selected));
+    const nutrition = selectedOptions.reduce((sum, option) => addNutrition(sum, option.nutrition), zeroNutrition());
+    const completed = checkMap.get(meal.id)?.completed ?? false;
+
+    return {
+      ...meal,
+      items: safeItems(meal.itemsJson),
+      groups: mealGroups,
+      hasChoiceGroups: mealGroups.length > 0,
+      selectedCount: selectedOptions.length,
+      nutrition,
+      completed,
+      completedAt: checkMap.get(meal.id)?.completedAt ?? null
+    };
+  });
+
+  const selectedNutrition = result.reduce((sum, meal) => addNutrition(sum, meal.nutrition), zeroNutrition());
+  const completedNutrition = result
+    .filter(meal => meal.completed)
+    .reduce((sum, meal) => addNutrition(sum, meal.nutrition), zeroNutrition());
 
   return NextResponse.json({
     document: { id: doc.id, fileName: doc.fileName, uploadedAt: doc.uploadedAt },
     meals: result,
     completedCount: result.filter(m => m.completed).length,
-    totalCalories: result.reduce((sum, m) => sum + Number(m.calories), 0)
+    totalCalories: result.reduce((sum, m) => sum + Number(m.calories), 0),
+    selectedNutrition,
+    completedNutrition
   });
 }
 
@@ -140,6 +234,30 @@ export async function PATCH(req: Request) {
 
   if (!updated) return NextResponse.json({ error: "Refeição não encontrada." }, { status: 404 });
   return NextResponse.json({ ok: true, meal: updated });
+}
+
+function calculateNutrition(option: any, quantity: number) {
+  const reference = Number(option.referenceQuantity) || 1;
+  const factor = quantity / reference;
+  return {
+    calories: Number(option.caloriesRef) * factor,
+    protein: Number(option.proteinRef) * factor,
+    carbs: Number(option.carbsRef) * factor,
+    fat: Number(option.fatRef) * factor
+  };
+}
+
+function zeroNutrition() {
+  return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+}
+
+function addNutrition(a: any, b: any) {
+  return {
+    calories: a.calories + b.calories,
+    protein: a.protein + b.protein,
+    carbs: a.carbs + b.carbs,
+    fat: a.fat + b.fat
+  };
 }
 
 function safeItems(value: string) {
