@@ -65,8 +65,6 @@ export const foodLibrary = pgTable("food_library", {
   protein: numeric("protein", { precision: 8, scale: 2 }).default("0").notNull(),
   carbs: numeric("carbs", { precision: 8, scale: 2 }).default("0").notNull(),
   fat: numeric("fat", { precision: 8, scale: 2 }).default("0").notNull(),
-  sourceType: text("source_type"),
-  sourceRef: text("source_ref"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
 });
@@ -83,6 +81,8 @@ export const foodEntries = pgTable("food_entries", {
   protein: numeric("protein", { precision: 8, scale: 2 }).default("0").notNull(),
   carbs: numeric("carbs", { precision: 8, scale: 2 }).default("0").notNull(),
   fat: numeric("fat", { precision: 8, scale: 2 }).default("0").notNull(),
+  sourceType: text("source_type"),
+  sourceRef: text("source_ref"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
 });
 
