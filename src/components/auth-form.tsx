@@ -10,17 +10,13 @@ export function AuthForm({ mode, inviteToken }: { mode: "login" | "register"; in
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [checkingInvite, setCheckingInvite] = useState(mode === "register");
+  const [checkingInvite, setCheckingInvite] = useState(mode === "register" && Boolean(inviteToken));
   const [forgotOpen, setForgotOpen] = useState(false);
 
   useEffect(() => {
     if (mode !== "register") return;
 
-    if (!inviteToken) {
-      setCheckingInvite(false);
-      setError("O cadastro de novos usuários é feito por convite.");
-      return;
-    }
+    if (!inviteToken) return;
 
     fetch("/api/invitations/validate?token=" + encodeURIComponent(inviteToken), { cache: "no-store" })
       .then(async r => {
@@ -28,18 +24,30 @@ export function AuthForm({ mode, inviteToken }: { mode: "login" | "register"; in
         if (!r.ok || !data.valid) throw new Error("Convite inválido ou expirado.");
         setInviteEmail(data.email);
       })
-      .catch(err => setError(err instanceof Error ? err.message : "Convite inválido."))
+      .catch(() => {
+        setInviteEmail("");
+        setError("Não foi possível validar o convite. Você ainda pode criar sua conta normalmente.");
+      })
       .finally(() => setCheckingInvite(false));
   }, [mode, inviteToken]);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+    const fd = new FormData(e.currentTarget);
+    if (mode === "register" && fd.get("password") !== fd.get("confirmPassword")) {
+      setError("As senhas não coincidem.");
+      return;
+    }
     setLoading(true);
 
-    const fd = new FormData(e.currentTarget);
     const body = mode === "register"
-      ? { name: fd.get("name"), email: inviteEmail, password: fd.get("password"), inviteToken }
+      ? {
+          name: fd.get("name"),
+          email: fd.get("email"),
+          password: fd.get("password"),
+          ...(inviteEmail ? { inviteToken } : {})
+        }
       : { email: fd.get("email"), password: fd.get("password") };
 
     try {
@@ -72,11 +80,13 @@ export function AuthForm({ mode, inviteToken }: { mode: "login" | "register"; in
       {mode === "register" && <>
         <label className="block">
           <span className="mb-1.5 block text-sm font-bold">Nome</span>
-          <input className="input" name="name" placeholder="Seu nome" autoComplete="name" required disabled={!inviteEmail} />
+          <input className="input" name="name" placeholder="Seu nome" autoComplete="name" minLength={2} required />
         </label>
         <label className="block">
-          <span className="mb-1.5 block text-sm font-bold">E-mail convidado</span>
-          <input className="input bg-[#f5f8f7]" value={inviteEmail} readOnly placeholder="Convite necessário" />
+          <span className="mb-1.5 block text-sm font-bold">{inviteEmail ? "E-mail do convite" : "E-mail"}</span>
+          {inviteEmail
+            ? <input className="input bg-[#f5f8f7]" name="email" type="email" value={inviteEmail} autoComplete="email" readOnly required />
+            : <input className="input" name="email" type="email" placeholder="voce@email.com" autoComplete="email" required />}
         </label>
       </>}
 
@@ -96,18 +106,23 @@ export function AuthForm({ mode, inviteToken }: { mode: "login" | "register"; in
             Esqueci minha senha
           </button>}
         </div>
-        <input className="input" name="password" type="password" placeholder={mode === "register" ? "Mínimo de 8 caracteres" : "Sua senha"} autoComplete={mode === "register" ? "new-password" : "current-password"} required disabled={mode === "register" && !inviteEmail} />
+        <input className="input" name="password" type="password" placeholder={mode === "register" ? "Mínimo de 8 caracteres" : "Sua senha"} autoComplete={mode === "register" ? "new-password" : "current-password"} minLength={mode === "register" ? 8 : undefined} required />
       </label>
+
+      {mode === "register" && <label className="block">
+        <span className="mb-1.5 block text-sm font-bold">Confirmar senha</span>
+        <input className="input" name="confirmPassword" type="password" placeholder="Repita sua senha" autoComplete="new-password" minLength={8} required />
+      </label>}
 
       {error && <p className="rounded-xl bg-red-50 p-3 text-sm font-bold text-red-700">{error}</p>}
 
-      <button disabled={loading || (mode === "register" && !inviteEmail)} className="btn-primary w-full disabled:opacity-60">
+      <button disabled={loading} className="btn-primary w-full disabled:opacity-60">
         {loading ? "Aguarde..." : mode === "register" ? "Concluir cadastro" : "Entrar"}
       </button>
 
       {mode === "register"
         ? <p className="text-center text-sm text-[#8c819b]">Já tem conta? <Link className="font-black text-[#654cff]" href="/login">Entrar</Link></p>
-        : <p className="text-center text-sm text-[#8c819b]">Ainda não tem conta? Peça um convite a quem administra o Forma day.</p>}
+        : <p className="text-center text-sm text-[#8c819b]">Ainda não tem conta? <Link className="font-black text-[#654cff]" href="/register">Criar conta gratuitamente</Link></p>}
     </form>
   );
 }
