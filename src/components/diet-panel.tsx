@@ -96,7 +96,7 @@ export function DietPanel() {
     <section className="card p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-black text-[#145c5a]">Minha dieta</p>
+          <p className="text-sm font-black text-[#654cff]">Minha dieta</p>
           <h2 className="mt-1 text-2xl font-black">Importe seu plano alimentar em PDF</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#71827f]">
             O app identifica as refeições, calcula as calorias quando o PDF traz calorias, macros ou quantidades reconhecíveis e monta seu checklist diário.
@@ -120,41 +120,41 @@ export function DietPanel() {
           </button>
         </div>
       </div>
-      {message && <div className="mt-4 rounded-xl bg-[#edf6f2] px-4 py-3 text-sm font-semibold text-[#315f55]">{message}</div>}
-      {data?.document && <div className="mt-4 flex items-center gap-3 rounded-xl border border-[#e2ebe8] bg-white px-4 py-3">
-        <FileText size={19} className="text-[#145c5a]"/>
+      {message && <div className="mt-4 rounded-xl bg-[#f6f2ff] px-4 py-3 text-sm font-semibold text-[#5d477c]">{message}</div>}
+      {data?.document && <div className="mt-4 flex items-center gap-3 rounded-xl border border-[#e9e2f4] bg-white px-4 py-3">
+        <FileText size={19} className="text-[#654cff]"/>
         <div className="min-w-0">
           <p className="truncate text-sm font-black">{data.document.fileName}</p>
-          <p className="text-xs text-[#7e8f8c]">Plano atual</p>
+          <p className="text-xs text-[#8c819b]">Plano atual</p>
         </div>
       </div>}
     </section>
 
     {!data?.document ? <section className="card grid place-items-center gap-3 p-12 text-center">
-      <FileText size={34} className="text-[#78928c]"/>
+      <FileText size={34} className="text-[#9b8cac]"/>
       <div>
         <p className="font-black">Nenhum plano alimentar importado</p>
-        <p className="mt-1 text-sm text-[#7b8d89]">Adicione seu PDF para montar as refeições do dia.</p>
+        <p className="mt-1 text-sm text-[#8c819b]">Adicione seu PDF para montar as refeições do dia.</p>
       </div>
     </section> : <>
       <section className="grid gap-4 md:grid-cols-3">
         <div className="card p-5">
-          <p className="text-xs font-black uppercase tracking-[.15em] text-[#82928f]">Progresso hoje</p>
+          <p className="text-xs font-black uppercase tracking-[.15em] text-[#958aa5]">Progresso hoje</p>
           <p className="mt-2 text-3xl font-black">{data.completedCount}/{data.meals.length}</p>
-          <div className="mt-3 h-2 rounded-full bg-[#e8efed]">
-            <div className="h-2 rounded-full bg-[#145c5a]" style={{ width: pct + "%" }}/>
+          <div className="mt-3 h-2 rounded-full bg-[#eee9f8]">
+            <div className="h-2 rounded-full bg-[#654cff]" style={{ width: pct + "%" }}/>
           </div>
-          <p className="mt-2 text-xs text-[#7c8d8a]">{pct}% das refeições concluídas</p>
+          <p className="mt-2 text-xs text-[#8c819b]">{pct}% das refeições concluídas</p>
         </div>
         <div className="card p-5">
-          <p className="text-xs font-black uppercase tracking-[.15em] text-[#82928f]">Plano diário</p>
+          <p className="text-xs font-black uppercase tracking-[.15em] text-[#958aa5]">Plano diário</p>
           <p className="mt-2 text-3xl font-black">{Math.round(data.totalCalories)} kcal</p>
-          <p className="mt-2 text-xs text-[#7c8d8a]">Soma das refeições identificadas</p>
+          <p className="mt-2 text-xs text-[#8c819b]">Soma das refeições identificadas</p>
         </div>
         <div className="card p-5">
-          <p className="text-xs font-black uppercase tracking-[.15em] text-[#82928f]">Já consumidas</p>
+          <p className="text-xs font-black uppercase tracking-[.15em] text-[#958aa5]">Já consumidas</p>
           <p className="mt-2 text-3xl font-black">{Math.round(completedCalories)} kcal</p>
-          <p className="mt-2 text-xs text-[#7c8d8a]">Com base no seu checklist de hoje</p>
+          <p className="mt-2 text-xs text-[#8c819b]">Com base no seu checklist de hoje</p>
         </div>
       </section>
 
@@ -163,7 +163,7 @@ export function DietPanel() {
           <div className="flex gap-4 p-5">
             <button
               onClick={() => toggle(meal)}
-              className="mt-1 shrink-0 text-[#145c5a]"
+              className="mt-1 shrink-0 text-[#654cff]"
               aria-label={meal.completed ? "Desmarcar refeição" : "Marcar refeição como concluída"}
             >
               {meal.completed ? <CheckCircle2 size={27}/> : <Circle size={27}/>}
@@ -173,7 +173,7 @@ export function DietPanel() {
                 <div>
                   <p className="text-xs font-black uppercase tracking-[.14em] text-[#8a9996]">Refeição {index + 1}</p>
                   <h3 className={`mt-1 text-lg font-black ${meal.completed ? "text-[#66807a]" : ""}`}>{meal.name}</h3>
-                  {meal.scheduledTime && <p className="mt-1 text-xs font-bold text-[#6f827e]">{meal.scheduledTime}</p>}
+                  {meal.scheduledTime && <p className="mt-1 text-xs font-bold text-[#817590]">{meal.scheduledTime}</p>}
                 </div>
                 <div className="sm:text-right">
                   {editing === meal.id ? <div className="flex gap-2">
@@ -190,7 +190,7 @@ export function DietPanel() {
                   </div> : <>
                     <p className="text-lg font-black">{Math.round(Number(meal.calories))} kcal</p>
                     <button
-                      className="mt-1 text-xs font-bold text-[#35756b] underline"
+                      className="mt-1 text-xs font-bold text-[#654cff] underline"
                       onClick={() => { setEditing(meal.id); setCalories(String(Math.round(Number(meal.calories)))); }}
                     >
                       ajustar calorias
@@ -200,14 +200,14 @@ export function DietPanel() {
               </div>
 
               <div className="mt-4 rounded-xl bg-[#f7f9f8] p-4">
-                <p className="text-xs font-black uppercase tracking-[.12em] text-[#81918e]">Itens identificados</p>
+                <p className="text-xs font-black uppercase tracking-[.12em] text-[#958aa5]">Itens identificados</p>
                 <div className="mt-2 space-y-1.5">
                   {meal.items.length ? meal.items.slice(0, 12).map((item, i) =>
-                    <p key={i} className="text-sm leading-5 text-[#536662]">• {item}</p>
-                  ) : <p className="text-sm text-[#7c8d8a]">Nenhum item detalhado.</p>}
+                    <p key={i} className="text-sm leading-5 text-[#655778]">• {item}</p>
+                  ) : <p className="text-sm text-[#8c819b]">Nenhum item detalhado.</p>}
                 </div>
               </div>
-              {meal.calculationNote && <p className="mt-3 text-xs leading-5 text-[#7b8d89]">{meal.calculationNote}</p>}
+              {meal.calculationNote && <p className="mt-3 text-xs leading-5 text-[#8c819b]">{meal.calculationNote}</p>}
             </div>
           </div>
         </article>)}
