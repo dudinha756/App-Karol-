@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { getSessionUserId } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { dietMeals, dietMealChecks } from "@/lib/schema";
+import { syncDietMealToFoodEntries } from "@/lib/diet-sync";
 
 export async function POST(req: Request) {
   const userId = await getSessionUserId();
@@ -47,6 +48,8 @@ export async function POST(req: Request) {
       completedAt: completed ? new Date() : null
     });
   }
+
+  await syncDietMealToFoodEntries(userId, mealId, logDate);
 
   return NextResponse.json({ ok: true, completed });
 }
