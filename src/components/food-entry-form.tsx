@@ -151,24 +151,24 @@ export function FoodEntryForm({done}:{done:()=>void}) {
       <option>Ceia</option>
     </select>
 
-    <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[#f2f6f4] p-1 sm:grid-cols-4">
-      <button type="button" onClick={()=>setMode('taco')} className={`rounded-xl px-2 py-2 text-xs font-black ${mode==='taco'?'bg-white text-[#145c5a] shadow-sm':'text-[#70817e]'}`}>Tabela TACO</button>
-      <button type="button" onClick={()=>setMode('saved')} className={`rounded-xl px-2 py-2 text-xs font-black ${mode==='saved'?'bg-white text-[#145c5a] shadow-sm':'text-[#70817e]'}`}>Meus alimentos</button>
-      <button type="button" onClick={()=>setMode('new')} className={`rounded-xl px-2 py-2 text-xs font-black ${mode==='new'?'bg-white text-[#145c5a] shadow-sm':'text-[#70817e]'}`}>Cadastrar</button>
-      <button type="button" onClick={()=>setMode('manual')} className={`rounded-xl px-2 py-2 text-xs font-black ${mode==='manual'?'bg-white text-[#145c5a] shadow-sm':'text-[#70817e]'}`}>Manual</button>
+    <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[#f7f3ff] p-1 sm:grid-cols-4">
+      <button type="button" onClick={()=>setMode('taco')} className={`rounded-xl px-2 py-2 text-xs font-black ${mode==='taco'?'bg-white text-[#654cff] shadow-sm':'text-[#817590]'}`}>Tabela TACO</button>
+      <button type="button" onClick={()=>setMode('saved')} className={`rounded-xl px-2 py-2 text-xs font-black ${mode==='saved'?'bg-white text-[#654cff] shadow-sm':'text-[#817590]'}`}>Meus alimentos</button>
+      <button type="button" onClick={()=>setMode('new')} className={`rounded-xl px-2 py-2 text-xs font-black ${mode==='new'?'bg-white text-[#654cff] shadow-sm':'text-[#817590]'}`}>Cadastrar</button>
+      <button type="button" onClick={()=>setMode('manual')} className={`rounded-xl px-2 py-2 text-xs font-black ${mode==='manual'?'bg-white text-[#654cff] shadow-sm':'text-[#817590]'}`}>Manual</button>
     </div>
 
     {error&&<div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{error}</div>}
 
     {mode==='taco'&&<div className="grid gap-3">
-      <div className="rounded-xl bg-[#edf6f2] p-4 text-sm leading-5 text-[#45645d]">
+      <div className="rounded-xl bg-[#f6f2ff] p-4 text-sm leading-5 text-[#655778]">
         Busque o alimento pela <strong>TACO 4ª edição (NEPA/UNICAMP)</strong>. Os valores são por 100 g; o app recalcula automaticamente pela quantidade consumida.
       </div>
 
       <div className="relative">
-        <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#879894]"/>
+        <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a196b0]"/>
         <input className="input pl-11" value={query} onChange={e=>{setQuery(e.target.value);setSelectedTaco(null)}} placeholder="Ex.: arroz integral cozido, banana, frango..."/>
-        {searching&&<RefreshCw size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-[#7b8d89]"/>}
+        {searching&&<RefreshCw size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-[#8c819b]"/>}
       </div>
 
       {query.trim().length>=2&&!selectedTaco&&<div className="max-h-60 overflow-y-auto rounded-2xl border border-[#e0e9e6] bg-white">
@@ -176,20 +176,20 @@ export function FoodEntryForm({done}:{done:()=>void}) {
           key={food.id}
           type="button"
           onClick={()=>{setSelectedTaco(food);setQuery(food.description);setGrams('100')}}
-          className="block w-full border-b border-[#edf2f0] px-4 py-3 text-left hover:bg-[#f5f9f7]"
+          className="block w-full border-b border-[#f0ebf7] px-4 py-3 text-left hover:bg-[#f5f9f7]"
         >
           <p className="text-sm font-black">{food.description}</p>
-          <p className="mt-1 text-xs text-[#7b8d89]">{food.category||'TACO'} · {Math.round(Number(food.energyKcal||0))} kcal/100 g</p>
-        </button>):!searching&&<div className="p-5 text-center text-sm text-[#7c8d8a]">Nenhum alimento encontrado.</div>}
+          <p className="mt-1 text-xs text-[#8c819b]">{food.category||'TACO'} · {Math.round(Number(food.energyKcal||0))} kcal/100 g</p>
+        </button>):!searching&&<div className="p-5 text-center text-sm text-[#8c819b]">Nenhum alimento encontrado.</div>}
       </div>}
 
       {selectedTaco&&<>
-        <div className="rounded-2xl border border-[#dce9e5] bg-[#f7fbf9] p-4">
+        <div className="rounded-2xl border border-[#e7def4] bg-[#fbf9ff] p-4">
           <div className="flex items-start gap-3">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-[#145c5a]"><Database size={17}/></span>
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-[#654cff]"><Database size={17}/></span>
             <div>
               <p className="font-black">{selectedTaco.description}</p>
-              <p className="mt-1 text-xs text-[#758783]">{selectedTaco.category} · referência de 100 g</p>
+              <p className="mt-1 text-xs text-[#8c819b]">{selectedTaco.category} · referência de 100 g</p>
             </div>
           </div>
         </div>
@@ -216,7 +216,7 @@ export function FoodEntryForm({done}:{done:()=>void}) {
 
         <div className="grid grid-cols-[1fr_auto] gap-3">
           <input className="input" type="number" min=".1" step=".1" value={savedQuantity} onChange={e=>setSavedQuantity(e.target.value)} placeholder="Quantidade consumida"/>
-          <div className="grid min-w-20 place-items-center rounded-xl bg-[#edf3f1] px-4 text-sm font-black text-[#536965]">{selectedSaved?.referenceUnit||'g'}</div>
+          <div className="grid min-w-20 place-items-center rounded-xl bg-[#f1edff] px-4 text-sm font-black text-[#655778]">{selectedSaved?.referenceUnit||'g'}</div>
         </div>
 
         {savedPreview&&<MacroPreview {...savedPreview}/>}
@@ -224,14 +224,14 @@ export function FoodEntryForm({done}:{done:()=>void}) {
         <button disabled={busy||!selectedFoodId||!Number(savedQuantity)} onClick={()=>postMeal({foodId:selectedFoodId,quantity:Number(savedQuantity)})} className="btn-primary w-full">
           {busy?'Salvando...':'Adicionar à refeição'}
         </button>
-      </>:<div className="rounded-xl bg-[#f4f7f6] p-4 text-sm text-[#61736f]">
+      </>:<div className="rounded-xl bg-[#f8f5ff] p-4 text-sm text-[#756986]">
         Você ainda não cadastrou alimentos próprios. Use <strong>Tabela TACO</strong> para alimentos comuns ou <strong>Cadastrar</strong> para produtos específicos.
       </div>}
     </div>}
 
     {mode==='new'&&<div className="grid gap-3">
-      <div className="rounded-xl bg-[#edf6f2] p-4 text-sm leading-5 text-[#45645d]">
-        Para alimentos industrializados ou receitas próprias, informe os dados de uma porção de referência. Depois o App Karol recalcula qualquer quantidade.
+      <div className="rounded-xl bg-[#f6f2ff] p-4 text-sm leading-5 text-[#655778]">
+        Para alimentos industrializados ou receitas próprias, informe os dados de uma porção de referência. Depois o Forma day recalcula qualquer quantidade.
       </div>
       <input className="input" placeholder="Nome do alimento" value={newFood.name} onChange={e=>setNewFood({...newFood,name:e.target.value})}/>
       <div className="grid grid-cols-2 gap-3">
@@ -269,15 +269,15 @@ export function FoodEntryForm({done}:{done:()=>void}) {
 }
 
 function MacroPreview({kcal,protein,carbs,fat}:{kcal:number;protein:number;carbs:number;fat:number}) {
-  return <div className="rounded-2xl border border-[#dce9e5] bg-[#f7fbf9] p-4">
+  return <div className="rounded-2xl border border-[#e7def4] bg-[#fbf9ff] p-4">
     <div className="flex items-center justify-between">
       <span className="text-sm font-black">Calculado automaticamente</span>
       <strong className="text-lg">{Math.round(kcal)} kcal</strong>
     </div>
     <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-      <div className="rounded-xl bg-white p-2"><p className="text-[10px] font-black uppercase text-[#82928f]">Proteína</p><p className="mt-1 font-black">{protein.toFixed(1)} g</p></div>
-      <div className="rounded-xl bg-white p-2"><p className="text-[10px] font-black uppercase text-[#82928f]">Carbo</p><p className="mt-1 font-black">{carbs.toFixed(1)} g</p></div>
-      <div className="rounded-xl bg-white p-2"><p className="text-[10px] font-black uppercase text-[#82928f]">Gordura</p><p className="mt-1 font-black">{fat.toFixed(1)} g</p></div>
+      <div className="rounded-xl bg-white p-2"><p className="text-[10px] font-black uppercase text-[#958aa5]">Proteína</p><p className="mt-1 font-black">{protein.toFixed(1)} g</p></div>
+      <div className="rounded-xl bg-white p-2"><p className="text-[10px] font-black uppercase text-[#958aa5]">Carbo</p><p className="mt-1 font-black">{carbs.toFixed(1)} g</p></div>
+      <div className="rounded-xl bg-white p-2"><p className="text-[10px] font-black uppercase text-[#958aa5]">Gordura</p><p className="mt-1 font-black">{fat.toFixed(1)} g</p></div>
     </div>
   </div>;
 }
