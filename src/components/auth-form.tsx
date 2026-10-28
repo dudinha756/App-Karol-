@@ -60,7 +60,7 @@ export function AuthForm({ mode, inviteToken }: { mode: "login" | "register"; in
   }
 
   if (mode === "register" && checkingInvite) {
-    return <div className="rounded-2xl bg-[#f2f6f4] p-5 text-sm font-bold text-[#60736f]">Validando seu convite...</div>;
+    return <div className="rounded-2xl bg-[#f7f3ff] p-5 text-sm font-bold text-[#756986]">Validando seu convite...</div>;
   }
 
   if (mode === "login" && forgotOpen) {
@@ -91,7 +91,7 @@ export function AuthForm({ mode, inviteToken }: { mode: "login" | "register"; in
           {mode === "login" && <button
             type="button"
             onClick={() => { setError(""); setForgotOpen(true); }}
-            className="text-xs font-black text-[#145c5a] hover:underline"
+            className="text-xs font-black text-[#654cff] hover:underline"
           >
             Esqueci minha senha
           </button>}
@@ -106,8 +106,8 @@ export function AuthForm({ mode, inviteToken }: { mode: "login" | "register"; in
       </button>
 
       {mode === "register"
-        ? <p className="text-center text-sm text-[#748683]">Já tem conta? <Link className="font-black text-[#145c5a]" href="/login">Entrar</Link></p>
-        : <p className="text-center text-sm text-[#748683]">Ainda não tem conta? Peça um convite a quem administra o App Karol.</p>}
+        ? <p className="text-center text-sm text-[#8c819b]">Já tem conta? <Link className="font-black text-[#654cff]" href="/login">Entrar</Link></p>
+        : <p className="text-center text-sm text-[#8c819b]">Ainda não tem conta? Peça um convite a quem administra o Forma day.</p>}
     </form>
   );
 }
@@ -178,26 +178,26 @@ function PasswordResetFlow({ close }: { close: () => void }) {
 
   if (step === "success") {
     return <div className="text-center">
-      <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#e5f4ed] text-[#145c5a]">
+      <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#f1edff] text-[#654cff]">
         <CheckCircle2 size={26} />
       </span>
       <h2 className="mt-4 text-xl font-black">Senha redefinida</h2>
-      <p className="mt-2 text-sm leading-6 text-[#6d807d]">Sua nova senha já está ativa. Você pode voltar e entrar normalmente.</p>
+      <p className="mt-2 text-sm leading-6 text-[#7c718c]">Sua nova senha já está ativa. Você pode voltar e entrar normalmente.</p>
       <button type="button" onClick={close} className="btn-primary mt-6 w-full">Voltar para o login</button>
     </div>;
   }
 
   return <div>
-    <button type="button" onClick={step === "code" ? () => setStep("email") : close} className="mb-5 inline-flex items-center gap-2 text-sm font-black text-[#536965]">
+    <button type="button" onClick={step === "code" ? () => setStep("email") : close} className="mb-5 inline-flex items-center gap-2 text-sm font-black text-[#655778]">
       <ArrowLeft size={16} /> Voltar
     </button>
 
     <div className="mb-5">
-      <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#e7f3ee] text-[#145c5a]">
+      <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f1edff] text-[#654cff]">
         {step === "email" ? <Mail size={19}/> : <KeyRound size={19}/>}
       </span>
       <h2 className="mt-4 text-2xl font-black">{step === "email" ? "Recuperar senha" : "Digite o código"}</h2>
-      <p className="mt-2 text-sm leading-6 text-[#6d807d]">
+      <p className="mt-2 text-sm leading-6 text-[#7c718c]">
         {step === "email"
           ? "Informe o e-mail da sua conta. Enviaremos um código de 6 dígitos para confirmar sua identidade."
           : "Use o código recebido por e-mail e escolha uma nova senha. O código expira em 10 minutos."}
@@ -212,7 +212,7 @@ function PasswordResetFlow({ close }: { close: () => void }) {
       {error && <p className="rounded-xl bg-red-50 p-3 text-sm font-bold text-red-700">{error}</p>}
       <button disabled={loading} className="btn-primary w-full">{loading ? "Enviando..." : "Enviar código"}</button>
     </form> : <form onSubmit={resetPassword} className="space-y-4">
-      {message && <p className="rounded-xl bg-[#edf6f2] p-3 text-sm font-semibold text-[#315f55]">{message}</p>}
+      {message && <p className="rounded-xl bg-[#f6f2ff] p-3 text-sm font-semibold text-[#5d477c]">{message}</p>}
       <label className="block">
         <span className="mb-1.5 block text-sm font-bold">Código de 6 dígitos</span>
         <input className="input text-center text-xl font-black tracking-[.28em]" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={e => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="000000" required autoFocus />
