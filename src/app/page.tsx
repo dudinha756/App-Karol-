@@ -18,7 +18,7 @@ export default function Home() {
             <Logo />
             <div className="flex items-center gap-2">
               <Link href="/login" className="rounded-xl px-4 py-2 text-sm font-bold text-[#5f5272] hover:bg-white/80">Entrar</Link>
-              <Link href="/login" className="btn-primary text-sm">Acessar app</Link>
+              <Link href="/register" className="btn-primary text-sm">Criar conta</Link>
             </div>
           </nav>
 
@@ -34,7 +34,7 @@ export default function Home() {
                 O Forma day reúne nutrição, treino, agenda e evolução em uma experiência simples para você acompanhar hábitos e enxergar seu progresso sem complicação.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link href="/login" className="btn-primary inline-flex items-center gap-2 px-5 py-3">Entrar no Forma day <ArrowRight size={18} /></Link>
+                <Link href="/register" className="btn-primary inline-flex items-center gap-2 px-5 py-3">Começar agora <ArrowRight size={18} /></Link>
                 <a href="#recursos" className="btn-secondary px-5 py-3">Conhecer recursos</a>
               </div>
             </div>
