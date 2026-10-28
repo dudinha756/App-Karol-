@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft, CheckCircle2, KeyRound, Mail } from "lucide-react";
 
 export function AuthForm({ mode, inviteToken }: { mode: "login" | "register"; inviteToken?: string }) {
   const router = useRouter();
@@ -10,6 +11,7 @@ export function AuthForm({ mode, inviteToken }: { mode: "login" | "register"; in
   const [loading, setLoading] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [checkingInvite, setCheckingInvite] = useState(mode === "register");
+  const [forgotOpen, setForgotOpen] = useState(false);
 
   useEffect(() => {
     if (mode !== "register") return;
@@ -61,6 +63,10 @@ export function AuthForm({ mode, inviteToken }: { mode: "login" | "register"; in
     return <div className="rounded-2xl bg-[#f2f6f4] p-5 text-sm font-bold text-[#60736f]">Validando seu convite...</div>;
   }
 
+  if (mode === "login" && forgotOpen) {
+    return <PasswordResetFlow close={() => setForgotOpen(false)} />;
+  }
+
   return (
     <form onSubmit={submit} className="space-y-4">
       {mode === "register" && <>
@@ -80,7 +86,16 @@ export function AuthForm({ mode, inviteToken }: { mode: "login" | "register"; in
       </label>}
 
       <label className="block">
-        <span className="mb-1.5 block text-sm font-bold">Senha</span>
+        <div className="mb-1.5 flex items-center justify-between gap-3">
+          <span className="text-sm font-bold">Senha</span>
+          {mode === "login" && <button
+            type="button"
+            onClick={() => { setError(""); setForgotOpen(true); }}
+            className="text-xs font-black text-[#145c5a] hover:underline"
+          >
+            Esqueci minha senha
+          </button>}
+        </div>
         <input className="input" name="password" type="password" placeholder={mode === "register" ? "Mínimo de 8 caracteres" : "Sua senha"} autoComplete={mode === "register" ? "new-password" : "current-password"} required disabled={mode === "register" && !inviteEmail} />
       </label>
 
@@ -95,4 +110,124 @@ export function AuthForm({ mode, inviteToken }: { mode: "login" | "register"; in
         : <p className="text-center text-sm text-[#748683]">Ainda não tem conta? Peça um convite a quem administra o App Karol.</p>}
     </form>
   );
+}
+
+function PasswordResetFlow({ close }: { close: () => void }) {
+  const [step, setStep] = useState<"email" | "code" | "success">("email");
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function requestCode(e?: React.FormEvent) {
+    e?.preventDefault();
+    setLoading(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const r = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || "Não foi possível enviar o código.");
+      setMessage(data.message || "Se esse e-mail estiver cadastrado, enviaremos um código.");
+      setStep("code");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro inesperado.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function resetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setMessage("");
+
+    if (password.length < 8) {
+      setError("A nova senha deve ter pelo menos 8 caracteres.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("As senhas não coincidem.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const r = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, code, password })
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || "Não foi possível redefinir a senha.");
+      setStep("success");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro inesperado.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (step === "success") {
+    return <div className="text-center">
+      <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#e5f4ed] text-[#145c5a]">
+        <CheckCircle2 size={26} />
+      </span>
+      <h2 className="mt-4 text-xl font-black">Senha redefinida</h2>
+      <p className="mt-2 text-sm leading-6 text-[#6d807d]">Sua nova senha já está ativa. Você pode voltar e entrar normalmente.</p>
+      <button type="button" onClick={close} className="btn-primary mt-6 w-full">Voltar para o login</button>
+    </div>;
+  }
+
+  return <div>
+    <button type="button" onClick={step === "code" ? () => setStep("email") : close} className="mb-5 inline-flex items-center gap-2 text-sm font-black text-[#536965]">
+      <ArrowLeft size={16} /> Voltar
+    </button>
+
+    <div className="mb-5">
+      <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#e7f3ee] text-[#145c5a]">
+        {step === "email" ? <Mail size={19}/> : <KeyRound size={19}/>}
+      </span>
+      <h2 className="mt-4 text-2xl font-black">{step === "email" ? "Recuperar senha" : "Digite o código"}</h2>
+      <p className="mt-2 text-sm leading-6 text-[#6d807d]">
+        {step === "email"
+          ? "Informe o e-mail da sua conta. Enviaremos um código de 6 dígitos para confirmar sua identidade."
+          : "Use o código recebido por e-mail e escolha uma nova senha. O código expira em 10 minutos."}
+      </p>
+    </div>
+
+    {step === "email" ? <form onSubmit={requestCode} className="space-y-4">
+      <label className="block">
+        <span className="mb-1.5 block text-sm font-bold">E-mail</span>
+        <input className="input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" autoComplete="email" required autoFocus />
+      </label>
+      {error && <p className="rounded-xl bg-red-50 p-3 text-sm font-bold text-red-700">{error}</p>}
+      <button disabled={loading} className="btn-primary w-full">{loading ? "Enviando..." : "Enviar código"}</button>
+    </form> : <form onSubmit={resetPassword} className="space-y-4">
+      {message && <p className="rounded-xl bg-[#edf6f2] p-3 text-sm font-semibold text-[#315f55]">{message}</p>}
+      <label className="block">
+        <span className="mb-1.5 block text-sm font-bold">Código de 6 dígitos</span>
+        <input className="input text-center text-xl font-black tracking-[.28em]" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={e => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="000000" required autoFocus />
+      </label>
+      <label className="block">
+        <span className="mb-1.5 block text-sm font-bold">Nova senha</span>
+        <input className="input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Mínimo de 8 caracteres" autoComplete="new-password" required />
+      </label>
+      <label className="block">
+        <span className="mb-1.5 block text-sm font-bold">Confirmar nova senha</span>
+        <input className="input" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Repita a nova senha" autoComplete="new-password" required />
+      </label>
+      {error && <p className="rounded-xl bg-red-50 p-3 text-sm font-bold text-red-700">{error}</p>}
+      <button disabled={loading || code.length !== 6} className="btn-primary w-full">{loading ? "Redefinindo..." : "Redefinir senha"}</button>
+      <button disabled={loading} type="button" onClick={() => requestCode()} className="btn-secondary w-full">Enviar novo código</button>
+    </form>}
+  </div>;
 }
