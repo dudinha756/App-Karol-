@@ -10,6 +10,17 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
 });
 
+export const passwordResetCodes = pgTable("password_reset_codes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  codeHash: text("code_hash").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  attempts: integer("attempts").default(0).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+});
+
 export const userInvitations = pgTable("user_invitations", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull(),
@@ -208,5 +219,6 @@ export const userRelations = relations(users, ({ one, many }) => ({
   dietDocuments: many(dietDocuments),
   dietMeals: many(dietMeals),
   dietMealChecks: many(dietMealChecks),
+  passwordResetCodes: many(passwordResetCodes),
   invitationsSent: many(userInvitations)
 }));
