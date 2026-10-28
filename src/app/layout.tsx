@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Forma — Nutrição, treino e progresso",
-  description: "Acompanhe alimentação, treinos, gasto energético e evolução em um só lugar."
+  title: "Forma day — Nutrição, treino e evolução",
+  description: "Organize alimentação, treinos, agenda e progresso em uma experiência simples e leve."
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
