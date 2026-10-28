@@ -85,7 +85,7 @@ export function StrengthPanel(){
           <button onClick={function(){setShowManual(true)}} className="btn-primary inline-flex items-center justify-center gap-2"><Plus size={17}/>Criar ficha</button>
         </div>
       </div>
-      {message&&<div className="mt-4 rounded-xl bg-[#edf6f2] px-4 py-3 text-sm font-semibold text-[#315f55]">{message}</div>}
+      {message&&<div className="mt-4 rounded-xl bg-[#f6f2ff] px-4 py-3 text-sm font-semibold text-[#5d477c]">{message}</div>}
     </section>
 
     <section className="grid gap-4 sm:grid-cols-3">
@@ -99,18 +99,18 @@ export function StrengthPanel(){
       return <article key={r.id} className="card overflow-hidden">
         <div className="flex items-center gap-3 p-4 sm:p-5">
           <button onClick={function(){setExpanded(open?null:r.id)}} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#e7f3ee] text-[#145c5a]"><Dumbbell size={19}/></span>
-            <div className="min-w-0"><p className="truncate text-lg font-black">{r.name}</p><p className="mt-1 text-xs text-[#748683]">{r.exercises.length+" exercícios "+(r.sourceDocumentId?"· importado de PDF":"· criado manualmente")}</p></div>
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#f1edff] text-[#654cff]"><Dumbbell size={19}/></span>
+            <div className="min-w-0"><p className="truncate text-lg font-black">{r.name}</p><p className="mt-1 text-xs text-[#8c819b]">{r.exercises.length+" exercícios "+(r.sourceDocumentId?"· importado de PDF":"· criado manualmente")}</p></div>
             {open?<ChevronUp size={18} className="ml-auto shrink-0"/>:<ChevronDown size={18} className="ml-auto shrink-0"/>}
           </button>
-          <button onClick={function(){removeRoutine(r.id)}} className="icon-btn shrink-0 text-[#966666]" aria-label="Excluir ficha"><Trash2 size={16}/></button>
+          <button onClick={function(){removeRoutine(r.id)}} className="icon-btn shrink-0 text-[#a14f78]" aria-label="Excluir ficha"><Trash2 size={16}/></button>
         </div>
 
-        {open&&<div className="border-t border-[#e8efed]">
-          {r.exercises.length?r.exercises.map(function(e,i){return <ExerciseCard key={e.id} exercise={e} index={i} onLog={function(){setLogExercise(e)}}/>}):<div className="p-8 text-center text-sm text-[#758783]">Nenhum exercício foi identificado automaticamente. Crie uma ficha manual para registrar os exercícios.</div>}
+        {open&&<div className="border-t border-[#eee8f6]">
+          {r.exercises.length?r.exercises.map(function(e,i){return <ExerciseCard key={e.id} exercise={e} index={i} onLog={function(){setLogExercise(e)}}/>}):<div className="p-8 text-center text-sm text-[#8c819b]">Nenhum exercício foi identificado automaticamente. Crie uma ficha manual para registrar os exercícios.</div>}
         </div>}
       </article>
-    })}</section>:<section className="card grid place-items-center gap-3 p-10 text-center"><FileText size={32} className="text-[#78928c]"/><div><p className="font-black">Nenhuma ficha de musculação ainda</p><p className="mt-1 text-sm text-[#748683]">Importe o PDF da academia ou crie seu treino manualmente.</p></div></section>}
+    })}</section>:<section className="card grid place-items-center gap-3 p-10 text-center"><FileText size={32} className="text-[#9b8cac]"/><div><p className="font-black">Nenhuma ficha de musculação ainda</p><p className="mt-1 text-sm text-[#8c819b]">Importe o PDF da academia ou crie seu treino manualmente.</p></div></section>}
 
     {showManual&&<ManualRoutineModal
       busy={busy}
@@ -130,19 +130,19 @@ function ExerciseCard({exercise,index,onLog}:{exercise:Exercise;index:number;onL
   const latest=exercise.progress[0];
   const previous=exercise.progress[1];
   const delta=latest?.weightKg&&previous?.weightKg?Number(latest.weightKg)-Number(previous.weightKg):null;
-  return <div className="border-b border-[#edf2f0] p-4 sm:p-5">
+  return <div className="border-b border-[#f0ebf7] p-4 sm:p-5">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2"><span className="text-xs font-black text-[#82928f]">{String(index+1).padStart(2,"0")}</span><p className="font-black">{exercise.name}</p></div>
-        <p className="mt-1 text-xs text-[#748683]">{(exercise.sets?exercise.sets+" séries":"Séries livres")+(exercise.reps?" · "+exercise.reps+" reps":"")+(exercise.restSeconds?" · "+exercise.restSeconds+"s descanso":"")}</p>
-        {exercise.notes&&<p className="mt-2 text-xs leading-5 text-[#697b77]">{exercise.notes}</p>}
+        <div className="flex items-center gap-2"><span className="text-xs font-black text-[#958aa5]">{String(index+1).padStart(2,"0")}</span><p className="font-black">{exercise.name}</p></div>
+        <p className="mt-1 text-xs text-[#8c819b]">{(exercise.sets?exercise.sets+" séries":"Séries livres")+(exercise.reps?" · "+exercise.reps+" reps":"")+(exercise.restSeconds?" · "+exercise.restSeconds+"s descanso":"")}</p>
+        {exercise.notes&&<p className="mt-2 text-xs leading-5 text-[#7c718c]">{exercise.notes}</p>}
       </div>
       <div className="flex items-center gap-3 sm:text-right">
         {latest?<div className="flex-1 sm:flex-none">
-          <p className="text-xs font-bold text-[#7d8e8b]">Último registro</p>
+          <p className="text-xs font-bold text-[#8c819b]">Último registro</p>
           <p className="mt-1 font-black">{(latest.weightKg?Number(latest.weightKg).toLocaleString("pt-BR")+" kg":"sem carga")+(latest.repsCompleted?" · "+latest.repsCompleted+" reps":"")}</p>
-          {delta!==null&&delta!==0&&<p className={"mt-1 text-xs font-black "+(delta>0?"text-[#2f7a61]":"text-[#966666]")}>{(delta>0?"+":"")+delta.toLocaleString("pt-BR")+" kg vs. anterior"}</p>}
-        </div>:<p className="flex-1 text-xs text-[#82928f] sm:flex-none">Sem progresso registrado</p>}
+          {delta!==null&&delta!==0&&<p className={"mt-1 text-xs font-black "+(delta>0?"text-[#654cff]":"text-[#a14f78]")}>{(delta>0?"+":"")+delta.toLocaleString("pt-BR")+" kg vs. anterior"}</p>}
+        </div>:<p className="flex-1 text-xs text-[#958aa5] sm:flex-none">Sem progresso registrado</p>}
         <button onClick={onLog} className="btn-secondary shrink-0">Registrar</button>
       </div>
     </div>
@@ -154,8 +154,8 @@ function ManualRoutineModal({busy,name,setName,exercises,setExercises,close,save
     <div className="mb-5 flex items-center justify-between"><div><p className="eyebrow">Musculação</p><h2 className="text-xl font-black">Criar ficha manualmente</h2></div><button onClick={close} className="icon-btn"><X size={18}/></button></div>
     <div className="grid gap-4">
       <label><span className="field-label">Nome da ficha</span><input className="input" value={name} onChange={function(e){setName(e.target.value)}} placeholder="Ex.: Treino A — inferiores"/></label>
-      <div className="space-y-3">{exercises.map(function(ex,i){return <div key={i} className="rounded-2xl border border-[#e2ebe8] bg-[#fafcfb] p-4">
-        <div className="mb-3 flex items-center justify-between"><p className="text-sm font-black">{"Exercício "+(i+1)}</p>{exercises.length>1&&<button className="text-xs font-bold text-[#966666]" onClick={function(){setExercises(exercises.filter(function(_:any,j:number){return j!==i}))}}>remover</button>}</div>
+      <div className="space-y-3">{exercises.map(function(ex,i){return <div key={i} className="rounded-2xl border border-[#e9e2f4] bg-[#fcfaff] p-4">
+        <div className="mb-3 flex items-center justify-between"><p className="text-sm font-black">{"Exercício "+(i+1)}</p>{exercises.length>1&&<button className="text-xs font-bold text-[#a14f78]" onClick={function(){setExercises(exercises.filter(function(_:any,j:number){return j!==i}))}}>remover</button>}</div>
         <input className="input" value={ex.name} onChange={function(e){setExercises(exercises.map(function(x:any,j:number){return j===i?Object.assign({},x,{name:e.target.value}):x}))}} placeholder="Nome do exercício"/>
         <div className="mt-3 grid grid-cols-3 gap-2">
           <input className="input" type="number" min="1" value={ex.sets} onChange={function(e){setExercises(exercises.map(function(x:any,j:number){return j===i?Object.assign({},x,{sets:e.target.value}):x}))}} placeholder="Séries"/>
