@@ -115,7 +115,7 @@ export function AppShell(){
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-6">
         {loading||!data
           ? <div className="card p-10 text-center text-[#817590]">Carregando seu painel...</div>
-          : <View name={view} data={data} setModal={setModal}/>}
+          : <View name={view} data={data} setModal={setModal} refresh={function(){load(true)}}/>}
       </div>
     </main>
 
@@ -158,11 +158,11 @@ function Ring({value,max,label}:{value:number;max:number;label:string}){
   </div>;
 }
 
-function View({name,data,setModal}:{name:string;data:Dash;setModal:(x:any)=>void}){
+function View({name,data,setModal,refresh}:{name:string;data:Dash;setModal:(x:any)=>void;refresh:()=>void}){
   const s=data.summary;
 
   if(name==="Agenda")return <CalendarPanel/>;
-  if(name==="Minha dieta")return <DietPanel/>;
+  if(name==="Minha dieta")return <DietPanel onNutritionChange={refresh}/>;
   if(name==="Musculação")return <StrengthPanel/>;
   if(name==="Usuários")return <UserInvitesPanel/>;
 
