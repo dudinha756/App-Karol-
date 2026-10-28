@@ -14,7 +14,13 @@ function hashToken(token: string) {
 
 export async function POST(req: Request) {
   try {
-    const raw = await req.json();
+    const raw = await req.json().catch(() => null);
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+      return NextResponse.json({ error: "Dados de cadastro inválidos." }, { status: 400 });
+    }
+    if (JSON.stringify(raw).length > 4096) {
+      return NextResponse.json({ error: "Dados de cadastro muito longos." }, { status: 413 });
+    }
     const body = registerSchema.parse(raw);
     const inviteToken = typeof raw.inviteToken === "string" ? raw.inviteToken.trim() : "";
     const email = body.email.trim().toLowerCase();
@@ -68,9 +74,14 @@ export async function POST(req: Request) {
     }
 
     if (inviteId) {
-      await db.update(userInvitations)
-        .set({ usedAt: new Date() })
-        .where(and(eq(userInvitations.id, inviteId), isNull(userInvitations.usedAt)));
+      try {
+        await db.update(userInvitations)
+          .set({ usedAt: new Date() })
+          .where(and(eq(userInvitations.id, inviteId), isNull(userInvitations.usedAt)));
+      } catch (error) {
+        // A atualização do convite não deve bloquear uma conta já criada.
+        console.error("Falha ao marcar convite como utilizado:", error);
+      }
     }
 
     await createSession(user.id);
