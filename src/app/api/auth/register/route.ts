@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { createHash } from "crypto";
 import { and, eq, gt, isNull } from "drizzle-orm";
+import { ZodError } from "zod";
 import { getDb } from "@/lib/db";
 import { users, profiles, userInvitations } from "@/lib/schema";
 import { registerSchema } from "@/lib/validation";
@@ -15,31 +16,36 @@ export async function POST(req: Request) {
   try {
     const raw = await req.json();
     const body = registerSchema.parse(raw);
-    const inviteToken = String(raw.inviteToken || "");
+    const inviteToken = typeof raw.inviteToken === "string" ? raw.inviteToken.trim() : "";
+    const email = body.email.trim().toLowerCase();
 
-    if (inviteToken.length < 20) {
-      return NextResponse.json({ error: "Cadastro disponível somente por convite." }, { status: 403 });
+    if (Buffer.byteLength(body.password, "utf8") > 72) {
+      return NextResponse.json({ error: "A senha é muito longa. Use até 72 bytes." }, { status: 400 });
     }
 
     const db = getDb();
-    const email = body.email.trim().toLowerCase();
+    let inviteId: string | null = null;
 
-    const [invite] = await db.select({
-      id: userInvitations.id,
-      email: userInvitations.email
-    }).from(userInvitations).where(and(
-      eq(userInvitations.tokenHash, hashToken(inviteToken)),
-      eq(userInvitations.email, email),
-      isNull(userInvitations.usedAt),
-      gt(userInvitations.expiresAt, new Date())
-    )).limit(1);
+    // Convites antigos continuam válidos, mas não são mais obrigatórios.
+    if (inviteToken) {
+      if (inviteToken.length < 20 || inviteToken.length > 200) {
+        return NextResponse.json({ error: "Convite inválido ou expirado." }, { status: 403 });
+      }
 
-    if (!invite) {
-      return NextResponse.json({ error: "Convite inválido, expirado ou destinado a outro e-mail." }, { status: 403 });
+      const [invite] = await db.select({
+        id: userInvitations.id
+      }).from(userInvitations).where(and(
+        eq(userInvitations.tokenHash, hashToken(inviteToken)),
+        eq(userInvitations.email, email),
+        isNull(userInvitations.usedAt),
+        gt(userInvitations.expiresAt, new Date())
+      )).limit(1);
+
+      if (!invite) {
+        return NextResponse.json({ error: "Convite inválido, expirado ou destinado a outro e-mail." }, { status: 403 });
+      }
+      inviteId = invite.id;
     }
-
-    const existing = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1);
-    if (existing.length) return NextResponse.json({ error: "Já existe uma conta com este e-mail." }, { status: 409 });
 
     const passwordHash = await bcrypt.hash(body.password, 12);
     const [user] = await db.insert(users).values({
@@ -47,15 +53,33 @@ export async function POST(req: Request) {
       email,
       passwordHash,
       canInvite: false
-    }).returning({ id: users.id });
+    }).onConflictDoNothing({ target: users.email }).returning({ id: users.id });
 
-    await db.insert(profiles).values({ userId: user.id });
-    await db.update(userInvitations).set({ usedAt: new Date() }).where(eq(userInvitations.id, invite.id));
+    if (!user) {
+      return NextResponse.json({ error: "Já existe uma conta com este e-mail." }, { status: 409 });
+    }
+
+    // Cada conta recebe um perfil próprio, sem alterar dados de outros usuários.
+    try {
+      await db.insert(profiles).values({ userId: user.id });
+    } catch (error) {
+      await db.delete(users).where(eq(users.id, user.id));
+      throw error;
+    }
+
+    if (inviteId) {
+      await db.update(userInvitations)
+        .set({ usedAt: new Date() })
+        .where(and(eq(userInvitations.id, inviteId), isNull(userInvitations.usedAt)));
+    }
+
     await createSession(user.id);
-
-    return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    const message = e?.issues?.[0]?.message || e?.message || "Não foi possível criar a conta.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json({ ok: true }, { status: 201 });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json({ error: error.issues[0]?.message || "Dados inválidos." }, { status: 400 });
+    }
+    console.error("Falha ao criar conta no Forma day:", error);
+    return NextResponse.json({ error: "Não foi possível criar a conta. Tente novamente." }, { status: 500 });
   }
 }
