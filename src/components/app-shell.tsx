@@ -78,31 +78,31 @@ export function AppShell(){
     location.href="/";
   }
 
-  return <div className="min-h-screen bg-[#f6f8f7]">
-    <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-[#e2eae8] bg-white p-5 lg:block">
+  return <div className="min-h-screen forma-shell">
+    <aside className="forma-sidebar fixed inset-y-0 left-0 hidden w-64 border-r bg-white p-5 lg:block">
       <Logo/>
       <div className="mt-8">
-        <p className="px-3 text-[10px] font-black uppercase tracking-[.18em] text-[#9aa9a6]">Navegação</p>
+        <p className="px-3 text-[10px] font-black uppercase tracking-[.18em] text-[#aea3bb]">Navegação</p>
         <nav className="mt-2 space-y-1">
           {desktopNav.map(function(item){
             const Icon=item.icon;
-            return <button key={item.name} onClick={function(){chooseView(item.name)}} className={"flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold transition "+(view===item.name?"bg-[#e7f3ee] text-[#145c5a]":"text-[#647673] hover:bg-[#f4f7f6]")}>
+            return <button key={item.name} onClick={function(){chooseView(item.name)}} className={"flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold transition "+(view===item.name?"bg-[#f1edff] text-[#654cff]":"text-[#83778f] hover:bg-[#f8f5ff]")}>
               <Icon size={18}/>{item.name}
             </button>
           })}
         </nav>
       </div>
-      <div className="absolute bottom-5 left-5 right-5 border-t border-[#edf2f0] pt-3">
+      <div className="absolute bottom-5 left-5 right-5 border-t border-[#f0ebf7] pt-3">
         <button onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-[#8a5b5b] hover:bg-red-50"><LogOut size={18}/>Sair</button>
       </div>
     </aside>
 
     <main className="pb-28 lg:ml-64 lg:pb-8">
-      <header className="sticky top-0 z-20 border-b border-[#e3ebe8] bg-[#f6f8f7]/92 px-4 py-3 backdrop-blur sm:px-8 sm:py-4">
+      <header className="forma-header sticky top-0 z-20 border-b px-4 py-3 sm:px-8 sm:py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
           <div className="lg:hidden"><Logo compact/></div>
           <div className="min-w-0 flex-1 lg:flex-none">
-            <p className="hidden text-xs font-black uppercase tracking-[.18em] text-[#7f918e] lg:block">App Karol</p>
+            <p className="hidden text-xs font-black uppercase tracking-[.18em] text-[#958aa5] lg:block">Forma day</p>
             <h1 className="truncate text-lg font-black tracking-tight sm:text-xl">{view}</h1>
           </div>
           <div className="flex shrink-0 gap-2">
@@ -114,7 +114,7 @@ export function AppShell(){
 
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-6">
         {loading||!data
-          ? <div className="card p-10 text-center text-[#6f817e]">Carregando seu painel...</div>
+          ? <div className="card p-10 text-center text-[#817590]">Carregando seu painel...</div>
           : <View name={view} data={data} setModal={setModal}/>}
       </div>
     </main>
@@ -137,9 +137,9 @@ export function AppShell(){
         <div className="grid gap-2">
           {moreItems.map(function(item){
             const Icon=item.icon;
-            return <button key={item.name} onClick={function(){chooseView(item.name)}} className="flex items-center gap-3 rounded-2xl border border-[#e3ebe8] p-4 text-left hover:bg-[#f6f9f8]">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#e7f3ee] text-[#145c5a]"><Icon size={19}/></span>
-              <div><p className="font-black">{item.name}</p><p className="mt-1 text-xs text-[#738581]">{item.description}</p></div>
+            return <button key={item.name} onClick={function(){chooseView(item.name)}} className="flex items-center gap-3 rounded-2xl border border-[#eee8f6] p-4 text-left hover:bg-[#faf7ff]">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#f1edff] text-[#654cff]"><Icon size={19}/></span>
+              <div><p className="font-black">{item.name}</p><p className="mt-1 text-xs text-[#817590]">{item.description}</p></div>
             </button>
           })}
         </div>
@@ -154,7 +154,7 @@ function Ring({value,max,label}:{value:number;max:number;label:string}){
   const p=Math.min(100,Math.round(value/max*100||0));
   return <div>
     <div className="mb-1 flex justify-between text-xs font-bold"><span>{label}</span><span>{Math.round(value)+" / "+Math.round(max)+" g"}</span></div>
-    <div className="h-2 rounded-full bg-[#e8efed]"><div className="h-2 rounded-full bg-[#145c5a] transition-all" style={{width:p+"%"}}/></div>
+    <div className="h-2 rounded-full bg-[#eee9f8]"><div className="forma-progress h-2 rounded-full transition-all" style={{width:p+"%"}}/></div>
   </div>;
 }
 
@@ -178,7 +178,7 @@ function View({name,data,setModal}:{name:string;data:Dash;setModal:(x:any)=>void
       <div className="card p-5 sm:p-6">
         <div className="flex justify-between gap-3">
           <div><p className="eyebrow">Meta do dia</p><h2 className="mt-1 text-2xl font-black">{Math.round(s.target)+" kcal"}</h2></div>
-          <span className="h-fit rounded-full bg-[#e3f3ec] px-3 py-1 text-xs font-black text-[#145c5a]">estimativa</span>
+          <span className="h-fit rounded-full bg-[#fff0fa] px-3 py-1 text-xs font-black text-[#df4db0]">estimativa</span>
         </div>
         <div className="mt-6 space-y-4">
           <Ring value={s.protein} max={s.proteinTarget} label="Proteína"/>
@@ -194,29 +194,29 @@ function View({name,data,setModal}:{name:string;data:Dash;setModal:(x:any)=>void
           <button onClick={function(){setModal("workout")}} className="quick-action"><Plus size={17}/>Registrar atividade</button>
           <button onClick={function(){setModal("weight")}} className="quick-action"><Plus size={17}/>Atualizar peso</button>
         </div>
-        <p className="mt-4 text-xs leading-5 text-[#80918e]">Use os registros diários como referência e acompanhe a tendência ao longo das semanas.</p>
+        <p className="mt-4 text-xs leading-5 text-[#958aa5]">Use os registros diários como referência e acompanhe a tendência ao longo das semanas.</p>
       </div>
     </section>
   </div>;
 
   if(name==="Alimentação")return <section className="card overflow-hidden">
-    <div className="flex items-center justify-between gap-3 border-b border-[#e7eeec] p-4 sm:p-5">
-      <div><h2 className="text-xl font-black">Refeições de hoje</h2><p className="text-sm text-[#768885]">{data.foods.length+" itens registrados"}</p></div>
+    <div className="flex items-center justify-between gap-3 border-b border-[#eee8f6] p-4 sm:p-5">
+      <div><h2 className="text-xl font-black">Refeições de hoje</h2><p className="text-sm text-[#8c819b]">{data.foods.length+" itens registrados"}</p></div>
       <button onClick={function(){setModal("food")}} className="btn-primary shrink-0">+ Adicionar</button>
     </div>
-    {data.foods.length?data.foods.map(function(f:any){return <div key={f.id} className="grid grid-cols-[1fr_auto] gap-4 border-b border-[#edf2f0] p-4 sm:p-5">
-      <div className="min-w-0"><p className="truncate font-black">{f.name}</p><p className="mt-1 text-xs text-[#7d8e8b]">{f.mealType+" · "+f.quantity+" "+f.unit}</p></div>
-      <div className="text-right"><p className="font-black">{Math.round(+f.calories)+" kcal"}</p><p className="text-xs text-[#7d8e8b]">{"P "+Math.round(+f.protein)+" · C "+Math.round(+f.carbs)+" · G "+Math.round(+f.fat)}</p></div>
+    {data.foods.length?data.foods.map(function(f:any){return <div key={f.id} className="grid grid-cols-[1fr_auto] gap-4 border-b border-[#f0ebf7] p-4 sm:p-5">
+      <div className="min-w-0"><p className="truncate font-black">{f.name}</p><p className="mt-1 text-xs text-[#8c819b]">{f.mealType+" · "+f.quantity+" "+f.unit}</p></div>
+      <div className="text-right"><p className="font-black">{Math.round(+f.calories)+" kcal"}</p><p className="text-xs text-[#8c819b]">{"P "+Math.round(+f.protein)+" · C "+Math.round(+f.carbs)+" · G "+Math.round(+f.fat)}</p></div>
     </div>}):<Empty icon={Apple} text="Nenhuma refeição registrada hoje."/>}
   </section>;
 
   if(name==="Treinos")return <section className="card overflow-hidden">
-    <div className="flex items-center justify-between gap-3 border-b border-[#e7eeec] p-4 sm:p-5">
-      <div><h2 className="text-xl font-black">Atividades de hoje</h2><p className="text-sm text-[#768885]">{Math.round(s.exercise)+" kcal de exercício estimadas"}</p></div>
+    <div className="flex items-center justify-between gap-3 border-b border-[#eee8f6] p-4 sm:p-5">
+      <div><h2 className="text-xl font-black">Atividades de hoje</h2><p className="text-sm text-[#8c819b]">{Math.round(s.exercise)+" kcal de exercício estimadas"}</p></div>
       <button onClick={function(){setModal("workout")}} className="btn-primary shrink-0">+ Adicionar</button>
     </div>
-    {data.workouts.length?data.workouts.map(function(w:any){return <div key={w.id} className="flex items-center justify-between gap-4 border-b border-[#edf2f0] p-4 sm:p-5">
-      <div><p className="font-black">{w.type}</p><p className="text-xs text-[#7d8e8b]">{w.durationMinutes+" min · "+w.intensity}</p></div>
+    {data.workouts.length?data.workouts.map(function(w:any){return <div key={w.id} className="flex items-center justify-between gap-4 border-b border-[#f0ebf7] p-4 sm:p-5">
+      <div><p className="font-black">{w.type}</p><p className="text-xs text-[#8c819b]">{w.durationMinutes+" min · "+w.intensity}</p></div>
       <div className="shrink-0 text-right font-black">{"≈ "+Math.round(+w.caloriesEstimated)+" kcal"}</div>
     </div>}):<Empty icon={Dumbbell} text="Nenhuma atividade registrada hoje."/>}
   </section>;
@@ -224,14 +224,14 @@ function View({name,data,setModal}:{name:string;data:Dash;setModal:(x:any)=>void
   return <div className="grid gap-5 lg:grid-cols-[1fr_.8fr]">
     <section className="card p-5 sm:p-6">
       <h2 className="text-xl font-black">Evolução de peso</h2>
-      <p className="mt-1 text-sm text-[#758783]">Últimos registros</p>
+      <p className="mt-1 text-sm text-[#8c819b]">Últimos registros</p>
       <div className="mt-6 flex h-48 items-end gap-2">
         {data.weightTrend.length?data.weightTrend.map(function(x:any,i:number){
           const vals=data.weightTrend.map(function(z:any){return +z.weightKg});
           const mn=Math.min.apply(null,vals)-.5,mx=Math.max.apply(null,vals)+.5;
           const h=25+((+x.weightKg-mn)/(mx-mn||1))*70;
-          return <div key={i} className="flex flex-1 flex-col items-center gap-2"><div className="w-full rounded-t-lg bg-[#79b9a2]" style={{height:h+"%"}}/><span className="text-[10px] font-bold text-[#748683]">{+x.weightKg}</span></div>
-        }):<p className="m-auto text-sm text-[#7a8c89]">Registre seu peso para ver a tendência.</p>}
+          return <div key={i} className="flex flex-1 flex-col items-center gap-2"><div className="w-full rounded-t-lg bg-[#8d63ff]" style={{height:h+"%"}}/><span className="text-[10px] font-bold text-[#8c819b]">{+x.weightKg}</span></div>
+        }):<p className="m-auto text-sm text-[#8c819b]">Registre seu peso para ver a tendência.</p>}
       </div>
     </section>
 
@@ -244,7 +244,7 @@ function View({name,data,setModal}:{name:string;data:Dash;setModal:(x:any)=>void
 }
 
 function Empty({icon:Icon,text}:{icon:any;text:string}){
-  return <div className="grid place-items-center gap-3 p-10 text-center text-[#7c8d8a] sm:p-12"><Icon size={28}/><p className="text-sm">{text}</p></div>;
+  return <div className="grid place-items-center gap-3 p-10 text-center text-[#8c819b] sm:p-12"><Icon size={28}/><p className="text-sm">{text}</p></div>;
 }
 
 function EntryModal({type,close,done,weight}:{type:"food"|"workout"|"weight";close:()=>void;done:()=>void;weight:number}){
