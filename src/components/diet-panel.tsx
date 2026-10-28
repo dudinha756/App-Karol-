@@ -174,13 +174,6 @@ export function DietPanel({onNutritionChange}:{onNutritionChange?:()=>void}) {
   }
 
   async function toggleMeal(meal:DietMeal){
-    const allSelected=!meal.hasChoiceGroups||meal.groups.every(group=>Boolean(group.selectedOptionId));
-    if(!meal.completed&&!allSelected){
-      setMessage("Escolha uma opção em cada grupo antes de concluir a refeição.");
-      setExpanded(meal.id);
-      return;
-    }
-
     setBusy(true);
     const r=await fetch("/api/diet/check",{
       method:"POST",
@@ -207,7 +200,7 @@ export function DietPanel({onNutritionChange}:{onNutritionChange?:()=>void}) {
         <div>
           <p className="eyebrow">Minha dieta</p>
           <h2 className="page-title">Escolha o que você comeu em cada refeição</h2>
-          <p className="page-copy">Selecione uma opção de cada grupo, ajuste a quantidade se necessário e o Forma day calcula calorias, proteína, carboidratos e gordura automaticamente.</p>
+          <p className="page-copy">Selecione somente os alimentos que você realmente consumiu, ajuste a quantidade se necessário e o Forma day calcula calorias, proteína, carboidratos e gordura automaticamente.</p>
         </div>
         <div>
           <input ref={inputRef} className="hidden" type="file" accept="application/pdf,.pdf" onChange={e=>upload(e.target.files?.[0])}/>
@@ -257,7 +250,6 @@ export function DietPanel({onNutritionChange}:{onNutritionChange?:()=>void}) {
           const open=expanded===meal.id;
           const liveNutrition=mealNutrition(meal,quantityDrafts);
           const selectedGroups=meal.groups.filter(group=>group.selectedOptionId).length;
-          const allSelected=!meal.hasChoiceGroups||selectedGroups===meal.groups.length;
 
           return <article key={meal.id} className={"card overflow-hidden transition "+(meal.completed?"ring-2 ring-[#d9cff8]":"")}>
             <button onClick={()=>setExpanded(open?null:meal.id)} className="flex w-full items-center gap-4 p-4 text-left sm:p-5">
@@ -282,7 +274,7 @@ export function DietPanel({onNutritionChange}:{onNutritionChange?:()=>void}) {
                   <div className="mb-2.5 flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-black text-[#4b376a]">{group.name}</p>
-                      <p className="mt-0.5 text-xs text-[#958aa5]">{group.options.length===1?"Marque este item se consumiu":"Escolha uma opção"}</p>
+                      <p className="mt-0.5 text-xs text-[#958aa5]">{group.options.length===1?"Marque se consumiu":"Escolha uma opção se consumiu"}</p>
                     </div>
                     {group.selectedOptionId&&<span className="rounded-full bg-[#f1edff] px-2.5 py-1 text-[10px] font-black text-[#654cff]">escolhido</span>}
                   </div>
@@ -341,14 +333,14 @@ export function DietPanel({onNutritionChange}:{onNutritionChange?:()=>void}) {
                       <p className="mt-1 text-xs text-[#817590]">P {liveNutrition.protein.toFixed(1)} g · C {liveNutrition.carbs.toFixed(1)} g · G {liveNutrition.fat.toFixed(1)} g</p>
                     </div>
                     <button
-                      disabled={busy||(!meal.completed&&!allSelected)}
+                      disabled={busy}
                       onClick={()=>toggleMeal(meal)}
                       className={meal.completed?"btn-secondary":"btn-primary"}
                     >
                       {meal.completed?"Desmarcar refeição":"Marcar como feita"}
                     </button>
                   </div>
-                  {!allSelected&&!meal.completed&&<p className="mt-3 text-xs font-bold text-[#a06b8e]">Escolha uma opção em todos os grupos para concluir a refeição.</p>}
+                  {!meal.completed&&<p className="mt-3 text-xs font-bold text-[#817590]">Você pode concluir a refeição mesmo sem selecionar todos os grupos. Só o que estiver marcado entra no cálculo.</p>}
                 </div>
               </div>:<div>
                 <div className="rounded-2xl bg-[#faf8ff] p-4">
