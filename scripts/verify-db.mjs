@@ -3,6 +3,12 @@ import { neon } from "@neondatabase/serverless";
 const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
 if (!url) {
+  // Previews sem banco configurado ainda devem compilar para validar o código.
+  // Produção continua exigindo uma conexão real antes de publicar.
+  if (process.env.VERCEL_ENV === "preview") {
+    console.warn("Preview sem DATABASE_URL: verificação do banco ignorada. APIs que usam banco não funcionarão neste preview.");
+    process.exit(0);
+  }
   console.error("DATABASE_URL/POSTGRES_URL is not configured.");
   process.exit(1);
 }
