@@ -166,38 +166,66 @@ function View({name,data,setModal}:{name:string;data:Dash;setModal:(x:any)=>void
   if(name==="Musculação")return <StrengthPanel/>;
   if(name==="Usuários")return <UserInvitesPanel/>;
 
-  if(name==="Hoje")return <div className="space-y-5">
-    <section className="grid gap-3 sm:grid-cols-3 sm:gap-4">
-      {[["Consumidas",s.consumed,"kcal"],["Gasto estimado",s.maintenance,"kcal"],["Saldo",s.balance,"kcal"]].map(function(item){
-        const l=item[0],v=item[1] as number,u=item[2];
-        return <div className="metric-card" key={String(l)}><p className="metric-label">{l}</p><div className="metric-value">{Math.round(v)}</div><p className="metric-help">{u}</p></div>
-      })}
-    </section>
+  if(name==="Hoje"){
+    const firstName=(data.profile.name||"").trim().split(" ")[0]||"você";
+    const calorieProgress=Math.min(100,Math.round((s.consumed/(s.target||1))*100));
+    return <div className="space-y-5">
+      <section className="glow-card relative overflow-hidden p-5 sm:p-7">
+        <div className="absolute -right-12 -top-16 h-52 w-52 rounded-full bg-[#acd0ff]/35 blur-3xl"/>
+        <div className="absolute -bottom-20 left-1/4 h-44 w-44 rounded-full bg-[#ff6cd2]/20 blur-3xl"/>
+        <div className="relative grid gap-6 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
+          <div>
+            <p className="eyebrow">Seu dia no Forma day</p>
+            <h2 className="mt-2 text-3xl font-black tracking-[-.045em] text-[#29154a] sm:text-4xl">Oi, {firstName}. <span className="bg-gradient-to-r from-[#654cff] to-[#ff6cd2] bg-clip-text text-transparent">Vamos cuidar de hoje?</span></h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-[#7c718c]">Nutrição, movimento e evolução em uma visão simples para você saber onde está e qual é o próximo passo.</p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button onClick={function(){setModal("food")}} className="btn-primary inline-flex items-center gap-2"><Plus size={16}/>Registrar refeição</button>
+              <button onClick={function(){setModal("workout")}} className="btn-secondary inline-flex items-center gap-2"><Dumbbell size={16}/>Registrar treino</button>
+            </div>
+          </div>
+          <div className="rounded-3xl bg-gradient-to-br from-[#674eff] via-[#8961ff] to-[#ed70ce] p-5 text-white shadow-[0_18px_45px_rgba(101,76,255,.22)]">
+            <div className="flex items-start justify-between">
+              <div><p className="text-xs font-black uppercase tracking-[.14em] text-white/70">Progresso alimentar</p><p className="mt-2 text-4xl font-black">{calorieProgress}%</p></div>
+              <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-black">{Math.round(s.consumed)} / {Math.round(s.target)} kcal</span>
+            </div>
+            <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-white/20"><div className="h-full rounded-full bg-white transition-all" style={{width:calorieProgress+"%"}}/></div>
+            <p className="mt-3 text-xs leading-5 text-white/75">Acompanhe a tendência do dia sem precisar fazer conta manual.</p>
+          </div>
+        </div>
+      </section>
 
-    <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
-      <div className="card p-5 sm:p-6">
-        <div className="flex justify-between gap-3">
-          <div><p className="eyebrow">Meta do dia</p><h2 className="mt-1 text-2xl font-black">{Math.round(s.target)+" kcal"}</h2></div>
-          <span className="h-fit rounded-full bg-[#fff0fa] px-3 py-1 text-xs font-black text-[#df4db0]">estimativa</span>
-        </div>
-        <div className="mt-6 space-y-4">
-          <Ring value={s.protein} max={s.proteinTarget} label="Proteína"/>
-          <Ring value={s.carbs} max={s.carbsTarget} label="Carboidratos"/>
-          <Ring value={s.fat} max={s.fatTarget} label="Gorduras"/>
-        </div>
-      </div>
+      <section className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+        {[["Consumidas",s.consumed,"kcal"],["Gasto estimado",s.maintenance,"kcal"],["Saldo",s.balance,"kcal"]].map(function(item){
+          const l=item[0],v=item[1] as number,u=item[2];
+          return <div className="metric-card" key={String(l)}><p className="metric-label">{l}</p><div className="metric-value">{Math.round(v)}</div><p className="metric-help">{u}</p></div>
+        })}
+      </section>
 
-      <div className="card p-5 sm:p-6">
-        <p className="text-sm font-black">Ações rápidas</p>
-        <div className="mt-4 grid gap-2">
-          <button onClick={function(){setModal("food")}} className="quick-action"><Plus size={17}/>Registrar refeição</button>
-          <button onClick={function(){setModal("workout")}} className="quick-action"><Plus size={17}/>Registrar atividade</button>
-          <button onClick={function(){setModal("weight")}} className="quick-action"><Plus size={17}/>Atualizar peso</button>
+      <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
+        <div className="card p-5 sm:p-6">
+          <div className="flex justify-between gap-3">
+            <div><p className="eyebrow">Macros do dia</p><h2 className="mt-1 text-2xl font-black text-[#342250]">Seu equilíbrio nutricional</h2></div>
+            <span className="h-fit rounded-full bg-[#fff0fa] px-3 py-1 text-xs font-black text-[#df4db0]">meta diária</span>
+          </div>
+          <div className="mt-6 space-y-4">
+            <Ring value={s.protein} max={s.proteinTarget} label="Proteína"/>
+            <Ring value={s.carbs} max={s.carbsTarget} label="Carboidratos"/>
+            <Ring value={s.fat} max={s.fatTarget} label="Gorduras"/>
+          </div>
         </div>
-        <p className="mt-4 text-xs leading-5 text-[#958aa5]">Use os registros diários como referência e acompanhe a tendência ao longo das semanas.</p>
-      </div>
-    </section>
-  </div>;
+
+        <div className="card p-5 sm:p-6">
+          <p className="eyebrow">Ações rápidas</p>
+          <div className="mt-4 grid gap-2">
+            <button onClick={function(){setModal("food")}} className="quick-action"><Plus size={17}/>Registrar refeição</button>
+            <button onClick={function(){setModal("workout")}} className="quick-action"><Plus size={17}/>Registrar atividade</button>
+            <button onClick={function(){setModal("weight")}} className="quick-action"><Plus size={17}/>Atualizar peso</button>
+          </div>
+          <p className="mt-4 text-xs leading-5 text-[#958aa5]">Pequenos registros deixam sua evolução mais fácil de enxergar.</p>
+        </div>
+      </section>
+    </div>;
+  }
 
   if(name==="Alimentação")return <section className="card overflow-hidden">
     <div className="flex items-center justify-between gap-3 border-b border-[#eee8f6] p-4 sm:p-5">
