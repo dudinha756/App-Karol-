@@ -99,26 +99,26 @@ export function CalendarPanel(){
         <button className="icon-btn" onClick={function(){setMonth(new Date(month.getFullYear(),month.getMonth()-1,1))}} aria-label="Mês anterior"><ChevronLeft size={19}/></button>
         <div className="text-center">
           <p className="text-lg font-black capitalize">{monthTitle(month)}</p>
-          <button className="mt-1 text-xs font-bold text-[#397469]" onClick={function(){setMonth(new Date())}}>Voltar para hoje</button>
+          <button className="mt-1 text-xs font-bold text-[#654cff]" onClick={function(){setMonth(new Date())}}>Voltar para hoje</button>
         </div>
         <button className="icon-btn" onClick={function(){setMonth(new Date(month.getFullYear(),month.getMonth()+1,1))}} aria-label="Próximo mês"><ChevronRight size={19}/></button>
       </div>
 
       <div className="hidden md:block">
-        <div className="grid grid-cols-7 border-b border-[#edf2f0] bg-[#fafcfb]">
+        <div className="grid grid-cols-7 border-b border-[#f0ebf7] bg-[#fcfaff]">
           {["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"].map(function(d){return <div key={d} className="px-3 py-2 text-center text-xs font-black uppercase tracking-[.12em] text-[#7c8d89]">{d}</div>})}
         </div>
         <div className="grid grid-cols-7">
           {days.map(function(d,i){
-            if(!d)return <div key={"blank-"+i} className="min-h-32 border-b border-r border-[#edf2f0] bg-[#fbfcfc]"/>;
+            if(!d)return <div key={"blank-"+i} className="min-h-32 border-b border-r border-[#f0ebf7] bg-[#fbfcfc]"/>;
             const key=localIso(d);
             const list=grouped.get(key)||[];
             const isToday=key===today;
-            return <div key={key} className="min-h-32 border-b border-r border-[#edf2f0] p-2.5">
-              <div className={"mb-2 grid h-7 w-7 place-items-center rounded-full text-xs font-black "+(isToday?"bg-[#145c5a] text-white":"text-[#4f625e]")}>{d.getDate()}</div>
+            return <div key={key} className="min-h-32 border-b border-r border-[#f0ebf7] p-2.5">
+              <div className={"mb-2 grid h-7 w-7 place-items-center rounded-full text-xs font-black "+(isToday?"bg-[#654cff] text-white":"text-[#4f625e]")}>{d.getDate()}</div>
               <div className="space-y-1.5">
-                {list.slice(0,3).map(function(e){return <button key={e.occurrenceId} onClick={function(){removeEvent(e.id)}} title="Clique para excluir" className="w-full rounded-lg bg-[#eef6f2] px-2 py-1.5 text-left hover:bg-[#e2f0ea]">
-                  <p className="truncate text-[11px] font-black text-[#244e49]">{e.startTime+" · "+e.title}</p>
+                {list.slice(0,3).map(function(e){return <button key={e.occurrenceId} onClick={function(){removeEvent(e.id)}} title="Clique para excluir" className="w-full rounded-lg bg-[#eef6f2] px-2 py-1.5 text-left hover:bg-[#eee9ff]">
+                  <p className="truncate text-[11px] font-black text-[#4d3571]">{e.startTime+" · "+e.title}</p>
                   <p className="truncate text-[10px] text-[#6f817d]">{typeLabel[e.eventType]||e.eventType}</p>
                 </button>})}
                 {list.length>3&&<p className="px-1 text-[10px] font-bold text-[#6e817d]">{"+"+(list.length-3)+" eventos"}</p>}
@@ -135,18 +135,18 @@ export function CalendarPanel(){
             return <div key={date} className="p-4">
               <p className="mb-3 text-xs font-black uppercase tracking-[.12em] text-[#6e817d]">{new Date(date+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"short"})}</p>
               <div className="space-y-2">
-                {list.map(function(e){return <div key={e.occurrenceId} className="flex gap-3 rounded-2xl bg-[#f7faf9] p-3">
-                  <div className="w-14 shrink-0 text-sm font-black text-[#145c5a]">{e.startTime}</div>
+                {list.map(function(e){return <div key={e.occurrenceId} className="flex gap-3 rounded-2xl bg-[#fbf9ff] p-3">
+                  <div className="w-14 shrink-0 text-sm font-black text-[#654cff]">{e.startTime}</div>
                   <div className="min-w-0 flex-1">
                     <p className="font-black">{e.title}</p>
-                    <p className="mt-1 text-xs text-[#758783]">{(typeLabel[e.eventType]||e.eventType)+" · "+e.durationMinutes+" min"+(e.recurrence!=="none"?" · "+recurrenceLabel[e.recurrence]:"")}</p>
-                    {e.notes&&<p className="mt-2 text-xs leading-5 text-[#697b77]">{e.notes}</p>}
+                    <p className="mt-1 text-xs text-[#8c819b]">{(typeLabel[e.eventType]||e.eventType)+" · "+e.durationMinutes+" min"+(e.recurrence!=="none"?" · "+recurrenceLabel[e.recurrence]:"")}</p>
+                    {e.notes&&<p className="mt-2 text-xs leading-5 text-[#7c718c]">{e.notes}</p>}
                   </div>
-                  <button onClick={function(){removeEvent(e.id)}} className="icon-btn h-9 w-9 shrink-0 text-[#966666]" aria-label="Excluir evento"><Trash2 size={16}/></button>
+                  <button onClick={function(){removeEvent(e.id)}} className="icon-btn h-9 w-9 shrink-0 text-[#a14f78]" aria-label="Excluir evento"><Trash2 size={16}/></button>
                 </div>})}
               </div>
             </div>
-          }):<div className="grid place-items-center gap-2 p-10 text-center text-[#748683]"><CalendarDays size={28}/><p className="text-sm">Nenhum evento neste mês.</p></div>}
+          }):<div className="grid place-items-center gap-2 p-10 text-center text-[#8c819b]"><CalendarDays size={28}/><p className="text-sm">Nenhum evento neste mês.</p></div>}
         </div>
       </div>
     </section>
@@ -155,10 +155,10 @@ export function CalendarPanel(){
       <h3 className="text-lg font-black">Próximos eventos</h3>
       <div className="mt-4 grid gap-2">
         {upcoming.length?upcoming.map(function(e){return <div key={"up-"+e.occurrenceId} className="flex items-center gap-3 rounded-2xl border border-[#e6eeeb] px-4 py-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#edf6f2] text-[#145c5a]"><Clock3 size={17}/></span>
-          <div className="min-w-0 flex-1"><p className="truncate font-black">{e.title}</p><p className="mt-1 text-xs text-[#768885]">{new Date(e.occurrenceDate+"T12:00:00").toLocaleDateString("pt-BR")+" · "+e.startTime+" · "+e.durationMinutes+" min"}</p></div>
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f6f2ff] text-[#654cff]"><Clock3 size={17}/></span>
+          <div className="min-w-0 flex-1"><p className="truncate font-black">{e.title}</p><p className="mt-1 text-xs text-[#8c819b]">{new Date(e.occurrenceDate+"T12:00:00").toLocaleDateString("pt-BR")+" · "+e.startTime+" · "+e.durationMinutes+" min"}</p></div>
           {e.recurrence!=="none"&&<Repeat2 size={16} className="shrink-0 text-[#78908a]"/>}
-        </div>}):<p className="text-sm text-[#758783]">Nenhum evento futuro neste mês.</p>}
+        </div>}):<p className="text-sm text-[#8c819b]">Nenhum evento futuro neste mês.</p>}
       </div>
     </section>
 
