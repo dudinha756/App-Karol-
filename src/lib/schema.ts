@@ -65,6 +65,8 @@ export const foodLibrary = pgTable("food_library", {
   protein: numeric("protein", { precision: 8, scale: 2 }).default("0").notNull(),
   carbs: numeric("carbs", { precision: 8, scale: 2 }).default("0").notNull(),
   fat: numeric("fat", { precision: 8, scale: 2 }).default("0").notNull(),
+  sourceType: text("source_type"),
+  sourceRef: text("source_ref"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
 });
@@ -192,6 +194,50 @@ export const dietMeals = pgTable("diet_meals", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
 });
 
+export const dietChoiceGroups = pgTable("diet_choice_groups", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  mealId: uuid("meal_id").notNull().references(() => dietMeals.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  selectionType: text("selection_type").default("single").notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const dietChoiceOptions = pgTable("diet_choice_options", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  mealId: uuid("meal_id").notNull().references(() => dietMeals.id, { onDelete: "cascade" }),
+  groupId: uuid("group_id").notNull().references(() => dietChoiceGroups.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  defaultQuantity: numeric("default_quantity", { precision: 8, scale: 2 }).notNull(),
+  referenceQuantity: numeric("reference_quantity", { precision: 8, scale: 2 }).default("100").notNull(),
+  unit: text("unit").default("g").notNull(),
+  caloriesRef: numeric("calories_ref", { precision: 10, scale: 4 }).default("0").notNull(),
+  proteinRef: numeric("protein_ref", { precision: 10, scale: 4 }).default("0").notNull(),
+  carbsRef: numeric("carbs_ref", { precision: 10, scale: 4 }).default("0").notNull(),
+  fatRef: numeric("fat_ref", { precision: 10, scale: 4 }).default("0").notNull(),
+  tacoFoodId: integer("taco_food_id").references(() => tacoFoods.id, { onDelete: "set null" }),
+  source: text("source").default("Plano alimentar").notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const dietOptionSelections = pgTable("diet_option_selections", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  mealId: uuid("meal_id").notNull().references(() => dietMeals.id, { onDelete: "cascade" }),
+  groupId: uuid("group_id").notNull().references(() => dietChoiceGroups.id, { onDelete: "cascade" }),
+  optionId: uuid("option_id").notNull().references(() => dietChoiceOptions.id, { onDelete: "cascade" }),
+  logDate: date("log_date").notNull(),
+  selected: boolean("selected").default(true).notNull(),
+  quantity: numeric("quantity", { precision: 8, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
+}, (t) => ({
+  uniqueDietOptionSelection: unique("diet_option_selections_unique").on(t.userId, t.optionId, t.logDate)
+}));
+
 export const dietMealChecks = pgTable("diet_meal_checks", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -218,6 +264,9 @@ export const userRelations = relations(users, ({ one, many }) => ({
   weightLogs: many(weightLogs),
   dietDocuments: many(dietDocuments),
   dietMeals: many(dietMeals),
+  dietChoiceGroups: many(dietChoiceGroups),
+  dietChoiceOptions: many(dietChoiceOptions),
+  dietOptionSelections: many(dietOptionSelections),
   dietMealChecks: many(dietMealChecks),
   passwordResetCodes: many(passwordResetCodes),
   invitationsSent: many(userInvitations)
