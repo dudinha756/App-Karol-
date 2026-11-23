@@ -102,7 +102,7 @@ export function AppShell(){
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
           <div className="lg:hidden"><Logo compact/></div>
           <div className="min-w-0 flex-1 lg:flex-none">
-            <p className="hidden text-xs font-black uppercase tracking-[.18em] text-[#958aa5] lg:block">Forma day</p>
+            <p className="hidden text-xs font-black uppercase tracking-[.18em] text-[#958aa5] lg:block">Forma Day</p>
             <h1 className="truncate text-lg font-black tracking-tight sm:text-xl">{view}</h1>
           </div>
           <div className="flex shrink-0 gap-2">
@@ -175,7 +175,7 @@ function View({name,data,setModal,refresh}:{name:string;data:Dash;setModal:(x:an
         <div className="absolute -bottom-20 left-1/4 h-44 w-44 rounded-full bg-[#ff6cd2]/20 blur-3xl"/>
         <div className="relative grid gap-6 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
           <div>
-            <p className="eyebrow">Seu dia no Forma day</p>
+            <p className="eyebrow">Seu dia no Forma Day</p>
             <h2 className="mt-2 text-3xl font-black tracking-[-.045em] text-[#29154a] sm:text-4xl">Oi, {firstName}. <span className="bg-gradient-to-r from-[#654cff] to-[#ff6cd2] bg-clip-text text-transparent">Vamos cuidar de hoje?</span></h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-[#7c718c]">Nutrição, movimento e evolução em uma visão simples para você saber onde está e qual é o próximo passo.</p>
             <div className="mt-5 flex flex-wrap gap-2">
