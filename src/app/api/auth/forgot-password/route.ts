@@ -9,7 +9,7 @@ function normalizeEmail(value:string){
   return value.trim().toLowerCase();
 }
 function hashCode(email:string,code:string){
-  const secret=process.env.AUTH_SECRET || process.env.DATABASE_URL || process.env.POSTGRES_URL || "app-karol-reset";
+  const secret=process.env.AUTH_SECRET || (process.env.NODE_ENV !== "production" ? "dev-only-secret-change-me" : "");
   return createHash("sha256").update(email+":"+code+":"+secret).digest("hex");
 }
 function generic(){
@@ -21,7 +21,7 @@ function generic(){
 
 export async function POST(req:Request){
   if(!process.env.RESEND_API_KEY){
-    return NextResponse.json({error:"O envio de e-mail ainda não foi configurado no App Karol."},{status:503});
+    return NextResponse.json({error:"O envio de e-mail ainda não foi configurado no Forma Day."},{status:503});
   }
 
   const body=await req.json().catch(function(){return {}});
