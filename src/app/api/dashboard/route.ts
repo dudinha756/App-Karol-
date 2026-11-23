@@ -4,8 +4,9 @@ import { getSessionUserId } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { users, profiles, foodEntries, workoutSessions, weightLogs } from "@/lib/schema";
 import { calculateBmr, calculateTargets } from "@/lib/energy";
+import { localDate, validLogDate } from "@/lib/dates";
 export async function GET(req:Request){
- const u=await getSessionUserId();if(!u)return NextResponse.json({error:'Não autenticado'},{status:401});const date=new URL(req.url).searchParams.get('date')||new Date().toISOString().slice(0,10);const db=getDb();
+ const u=await getSessionUserId();if(!u)return NextResponse.json({error:'Não autenticado'},{status:401});const date=new URL(req.url).searchParams.get('date')||localDate();if(!validLogDate(date))return NextResponse.json({error:"Data inválida."},{status:400});const db=getDb();
  const [pRows,foods,workouts,trend]=await Promise.all([
   db.select({name:users.name,canInvite:users.canInvite,age:profiles.age,sex:profiles.sex,heightCm:profiles.heightCm,weightKg:profiles.weightKg,goal:profiles.goal,baselineActivity:profiles.baselineActivity}).from(users).leftJoin(profiles,eq(users.id,profiles.userId)).where(eq(users.id,u)).limit(1),
   db.select().from(foodEntries).where(and(eq(foodEntries.userId,u),eq(foodEntries.logDate,date))).orderBy(asc(foodEntries.createdAt)),

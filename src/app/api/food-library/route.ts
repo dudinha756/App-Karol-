@@ -32,12 +32,12 @@ export async function POST(req: Request) {
   const enteredCalories = body.calories === "" || body.calories == null ? NaN : Number(body.calories);
   const calories = Number.isFinite(enteredCalories) ? enteredCalories : protein * 4 + carbs * 4 + fat * 9;
 
-  if (!name || !referenceQuantity || referenceQuantity <= 0) {
+  if (!name || name.length > 200 || !Number.isFinite(referenceQuantity) || referenceQuantity <= 0 || referenceQuantity > 5000 || referenceUnit.length > 30) {
     return NextResponse.json({ error: "Informe o alimento e a porção de referência." }, { status: 400 });
   }
 
   for (const value of [calories, protein, carbs, fat]) {
-    if (!Number.isFinite(value) || value < 0) {
+    if (!Number.isFinite(value) || value < 0 || value > 10000) {
       return NextResponse.json({ error: "Macros inválidos." }, { status: 400 });
     }
   }

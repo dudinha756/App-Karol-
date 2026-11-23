@@ -8,6 +8,7 @@ import { FoodEntryForm } from "./food-entry-form";
 import { UserInvitesPanel } from "./user-invites-panel";
 import { CalendarPanel } from "./calendar-panel";
 import { StrengthPanel } from "./strength-panel";
+import { CopyYesterdayButton } from "./copy-yesterday-button";
 
 type Dash={
   profile:{name:string;weightKg:number;canInvite:boolean};
@@ -102,7 +103,7 @@ export function AppShell(){
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
           <div className="lg:hidden"><Logo compact/></div>
           <div className="min-w-0 flex-1 lg:flex-none">
-            <p className="hidden text-xs font-black uppercase tracking-[.18em] text-[#958aa5] lg:block">Forma day</p>
+            <p className="hidden text-xs font-black uppercase tracking-[.18em] text-[#958aa5] lg:block">Forma Day</p>
             <h1 className="truncate text-lg font-black tracking-tight sm:text-xl">{view}</h1>
           </div>
           <div className="flex shrink-0 gap-2">
@@ -175,7 +176,7 @@ function View({name,data,setModal,refresh}:{name:string;data:Dash;setModal:(x:an
         <div className="absolute -bottom-20 left-1/4 h-44 w-44 rounded-full bg-[#ff6cd2]/20 blur-3xl"/>
         <div className="relative grid gap-6 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
           <div>
-            <p className="eyebrow">Seu dia no Forma day</p>
+            <p className="eyebrow">Seu dia no Forma Day</p>
             <h2 className="mt-2 text-3xl font-black tracking-[-.045em] text-[#29154a] sm:text-4xl">Oi, {firstName}. <span className="bg-gradient-to-r from-[#654cff] to-[#ff6cd2] bg-clip-text text-transparent">Vamos cuidar de hoje?</span></h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-[#7c718c]">Nutrição, movimento e evolução em uma visão simples para você saber onde está e qual é o próximo passo.</p>
             <div className="mt-5 flex flex-wrap gap-2">
@@ -230,7 +231,7 @@ function View({name,data,setModal,refresh}:{name:string;data:Dash;setModal:(x:an
   if(name==="Alimentação")return <section className="card overflow-hidden">
     <div className="flex items-center justify-between gap-3 border-b border-[#eee8f6] p-4 sm:p-5">
       <div><h2 className="text-xl font-black">Refeições de hoje</h2><p className="text-sm text-[#8c819b]">{data.foods.length+" itens registrados"}</p></div>
-      <button onClick={function(){setModal("food")}} className="btn-primary shrink-0">+ Adicionar</button>
+      <div className="flex flex-wrap items-center justify-end gap-2"><CopyYesterdayButton onCopied={refresh}/><button onClick={function(){setModal("food")}} className="btn-primary shrink-0">+ Adicionar</button></div>
     </div>
     {data.foods.length?data.foods.map(function(f:any){return <div key={f.id} className="grid grid-cols-[1fr_auto] gap-4 border-b border-[#f0ebf7] p-4 sm:p-5">
       <div className="min-w-0"><p className="truncate font-black">{f.name}</p><p className="mt-1 text-xs text-[#8c819b]">{f.mealType+" · "+f.quantity+" "+f.unit}</p></div>

@@ -31,7 +31,7 @@ export default function Home() {
                 Sua rotina de bem-estar, <span className="bg-gradient-to-r from-[#654cff] via-[#9c63ff] to-[#ff6cd2] bg-clip-text text-transparent">mais clara todos os dias.</span>
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-[#786d89]">
-                O Forma day reúne nutrição, treino, agenda e evolução em uma experiência simples para você acompanhar hábitos e enxergar seu progresso sem complicação.
+                O Forma Day reúne nutrição, treino, agenda e evolução em uma experiência simples para você acompanhar hábitos e enxergar seu progresso sem complicação.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link href="/register" className="btn-primary inline-flex items-center gap-2 px-5 py-3">Começar agora <ArrowRight size={18} /></Link>
@@ -50,7 +50,7 @@ export default function Home() {
                       <p className="eyebrow">Hoje</p>
                       <h2 className="mt-2 text-3xl font-black tracking-[-.04em] text-[#29154a]">Seu dia, em equilíbrio.</h2>
                     </div>
-                    <span className="rounded-full bg-[#fff0fa] px-3 py-1.5 text-xs font-black text-[#df4db0]">Forma day</span>
+                    <span className="rounded-full bg-[#fff0fa] px-3 py-1.5 text-xs font-black text-[#df4db0]">Forma Day</span>
                   </div>
 
                   <div className="mt-7 grid grid-cols-3 gap-3">

@@ -3,86 +3,78 @@ import { and, eq, desc } from "drizzle-orm";
 import { getSessionUserId } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { foodEntries, foodLibrary, tacoFoods } from "@/lib/schema";
+import { localDate, validLogDate } from "@/lib/dates";
 
-export async function GET(req:Request){
-  const u=await getSessionUserId();
-  if(!u)return NextResponse.json({error:"Não autenticado"},{status:401});
-  const d=new URL(req.url).searchParams.get("date")||new Date().toISOString().slice(0,10);
-  const db=getDb();
-  const rows=await db.select().from(foodEntries)
-    .where(and(eq(foodEntries.userId,u),eq(foodEntries.logDate,d)))
-    .orderBy(desc(foodEntries.createdAt));
-  return NextResponse.json(rows);
+const bad = (message: string) => NextResponse.json({ error: message }, { status: 400 });
+const numeric = (v: unknown) => v === "" || v === null || v === undefined ? NaN : Number(v);
+const healthy = (v: number, max = 100000) => Number.isFinite(v) && v >= 0 && v <= max;
+
+export async function GET(req: Request) {
+  const userId = await getSessionUserId();
+  if (!userId) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+  const date = new URL(req.url).searchParams.get("date") || localDate();
+  if (!validLogDate(date)) return bad("Data inválida.");
+  const db = getDb();
+  return NextResponse.json(await db.select().from(foodEntries)
+    .where(and(eq(foodEntries.userId, userId), eq(foodEntries.logDate, date)))
+    .orderBy(desc(foodEntries.createdAt)));
 }
 
-export async function POST(req:Request){
-  const u=await getSessionUserId();
-  if(!u)return NextResponse.json({error:"Não autenticado"},{status:401});
+export async function POST(req: Request) {
+  const userId = await getSessionUserId();
+  if (!userId) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body) || JSON.stringify(body).length > 5000) return bad("Dados inválidos.");
+  const logDate = body.logDate ?? localDate();
+  if (!validLogDate(logDate)) return bad("Data inválida.");
+  const db = getDb();
 
-  const b=await req.json();
-  const db=getDb();
+  let name = String(body.name || "").trim();
+  let quantity = numeric(body.quantity);
+  let unit = String(body.unit || "porção").trim();
+  let calories = numeric(body.calories ?? 0);
+  let protein = numeric(body.protein ?? 0);
+  let carbs = numeric(body.carbs ?? 0);
+  let fat = numeric(body.fat ?? 0);
 
-  let name=String(b.name||"").trim();
-  let quantity=Number(b.quantity||1);
-  let unit=String(b.unit||"porção");
-  let calories=Number(b.calories||0);
-  let protein=Number(b.protein||0);
-  let carbs=Number(b.carbs||0);
-  let fat=Number(b.fat||0);
-
-  if(b.tacoFoodId){
-    const [food]=await db.select().from(tacoFoods)
-      .where(eq(tacoFoods.id,Number(b.tacoFoodId)))
-      .limit(1);
-
-    if(!food)return NextResponse.json({error:"Alimento da TACO não encontrado."},{status:404});
-
-    quantity=Number(b.quantity||0);
-    if(!quantity||quantity<=0||quantity>5000){
-      return NextResponse.json({error:"Informe a quantidade consumida em gramas."},{status:400});
-    }
-
-    const factor=quantity/100;
-    name=food.description;
-    unit="g";
-    calories=Number(food.energyKcal||0)*factor;
-    protein=Number(food.proteinG||0)*factor;
-    carbs=Number(food.carbsG||0)*factor;
-    fat=Number(food.fatG||0)*factor;
-  } else if(b.foodId){
-    const [food]=await db.select().from(foodLibrary)
-      .where(and(eq(foodLibrary.id,String(b.foodId)),eq(foodLibrary.userId,u)))
-      .limit(1);
-
-    if(!food)return NextResponse.json({error:"Alimento não encontrado."},{status:404});
-
-    const referenceQuantity=Number(food.referenceQuantity)||1;
-    quantity=Number(b.quantity||referenceQuantity);
-    if(!quantity||quantity<=0)return NextResponse.json({error:"Quantidade inválida."},{status:400});
-
-    const factor=quantity/referenceQuantity;
-    name=food.name;
-    unit=food.referenceUnit;
-    calories=Number(food.calories)*factor;
-    protein=Number(food.protein)*factor;
-    carbs=Number(food.carbs)*factor;
-    fat=Number(food.fat)*factor;
+  if (body.tacoFoodId != null && body.tacoFoodId !== "") {
+    const id = numeric(body.tacoFoodId);
+    if (!Number.isInteger(id)) return bad("Alimento da TACO inválido.");
+    const [food] = await db.select().from(tacoFoods).where(eq(tacoFoods.id, id)).limit(1);
+    if (!food) return NextResponse.json({ error: "Alimento da TACO não encontrado." }, { status: 404 });
+    if (!healthy(quantity, 5000) || quantity === 0) return bad("Informe a quantidade consumida em gramas.");
+    const factor = quantity / 100;
+    name = food.description;
+    unit = "g";
+    calories = Number(food.energyKcal || 0) * factor;
+    protein = Number(food.proteinG || 0) * factor;
+    carbs = Number(food.carbsG || 0) * factor;
+    fat = Number(food.fatG || 0) * factor;
+  } else if (body.foodId) {
+    const [food] = await db.select().from(foodLibrary)
+      .where(and(eq(foodLibrary.id, String(body.foodId)), eq(foodLibrary.userId, userId))).limit(1);
+    if (!food) return NextResponse.json({ error: "Alimento não encontrado." }, { status: 404 });
+    const reference = Number(food.referenceQuantity);
+    quantity = numeric(body.quantity ?? food.referenceQuantity);
+    if (!healthy(quantity, 5000) || quantity === 0 || !healthy(reference) || reference === 0) return bad("Quantidade inválida.");
+    const factor = quantity / reference;
+    name = food.name;
+    unit = food.referenceUnit;
+    calories = Number(food.calories) * factor;
+    protein = Number(food.protein) * factor;
+    carbs = Number(food.carbs) * factor;
+    fat = Number(food.fat) * factor;
   }
 
-  if(!name)return NextResponse.json({error:"Informe o alimento."},{status:400});
+  const mealType = String(body.mealType || "Refeição").trim();
+  if (!name || name.length > 200 || !unit || unit.length > 30 || !mealType || mealType.length > 60) return bad("Dados do alimento inválidos.");
+  if (!healthy(quantity, 5000) || quantity === 0) return bad("Quantidade inválida.");
+  if (![calories, protein, carbs, fat].every(v => healthy(v, 10000))) return bad("Calorias ou macronutrientes inválidos.");
 
-  const [row]=await db.insert(foodEntries).values({
-    userId:u,
-    logDate:b.logDate||new Date().toISOString().slice(0,10),
-    mealType:b.mealType||"Refeição",
-    name,
-    quantity:String(quantity),
-    unit,
-    calories:String(Number(calories.toFixed(2))),
-    protein:String(Number(protein.toFixed(2))),
-    carbs:String(Number(carbs.toFixed(2))),
-    fat:String(Number(fat.toFixed(2)))
+  const [row] = await db.insert(foodEntries).values({
+    userId, logDate, mealType, name, quantity: String(quantity), unit,
+    calories: calories.toFixed(2), protein: protein.toFixed(2),
+    carbs: carbs.toFixed(2), fat: fat.toFixed(2)
   }).returning();
-
-  return NextResponse.json(row,{status:201});
+  return NextResponse.json(row, { status: 201 });
 }
