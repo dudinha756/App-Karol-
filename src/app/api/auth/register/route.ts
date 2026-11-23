@@ -7,6 +7,7 @@ import { getDb } from "@/lib/db";
 import { users, profiles, userInvitations } from "@/lib/schema";
 import { registerSchema } from "@/lib/validation";
 import { createSession } from "@/lib/auth";
+import { allowAttempt } from "@/lib/rate-limit";
 
 function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
@@ -22,6 +23,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Dados de cadastro muito longos." }, { status: 413 });
     }
     const body = registerSchema.parse(raw);
+    const ip = req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for")?.split(",")[0] || "unknown";
+    if (!allowAttempt("register:" + ip, 5, 60 * 60_000)) {
+      return NextResponse.json({ error: "Muitos cadastros. Tente novamente mais tarde." }, { status: 429 });
+    }
     const inviteToken = typeof raw.inviteToken === "string" ? raw.inviteToken.trim() : "";
     const email = body.email.trim().toLowerCase();
 
