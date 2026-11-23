@@ -4,14 +4,10 @@ import { cookies } from "next/headers";
 const COOKIE_NAME = "forma_session";
 
 function secretKey() {
-  const raw =
-    process.env.AUTH_SECRET ||
-    process.env.DATABASE_URL ||
-    process.env.POSTGRES_URL ||
-    (process.env.NODE_ENV !== "production" ? "dev-only-secret-change-me" : "");
+  const raw = process.env.AUTH_SECRET || (process.env.NODE_ENV !== "production" ? "dev-only-secret-change-me" : "");
 
   if (!raw) {
-    throw new Error("Nenhum segredo de sessão configurado. Defina DATABASE_URL ou AUTH_SECRET.");
+    throw new Error("Nenhum segredo de sessão configurado. Defina AUTH_SECRET.");
   }
 
   return new TextEncoder().encode(`app-karol-session:${raw}`);
