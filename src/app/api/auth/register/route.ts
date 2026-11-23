@@ -90,7 +90,7 @@ export async function POST(req: Request) {
     if (error instanceof ZodError) {
       return NextResponse.json({ error: error.issues[0]?.message || "Dados inválidos." }, { status: 400 });
     }
-    console.error("Falha ao criar conta no Forma day:", error);
+    console.error("Falha ao criar conta no Forma Day:", error);
     return NextResponse.json({ error: "Não foi possível criar a conta. Tente novamente." }, { status: 500 });
   }
 }
