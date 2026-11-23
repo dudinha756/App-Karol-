@@ -14,7 +14,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
           <path d="M29 24c4.5 0 8 3.4 8 8s-3.5 8-8 8h-5.5c5.1-2.2 8.1-6.8 8.1-12.4 0-1.2-.2-2.4-.6-3.6H29Z" fill="#ACD0FF" opacity=".95"/>
         </svg>
       </span>
-      {!compact && <span className="forma-wordmark">Forma <span>day</span></span>}
+      {!compact && <span className="forma-wordmark">Forma <span>Day</span></span>}
     </div>
   );
 }
