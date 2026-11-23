@@ -8,6 +8,7 @@ import { FoodEntryForm } from "./food-entry-form";
 import { UserInvitesPanel } from "./user-invites-panel";
 import { CalendarPanel } from "./calendar-panel";
 import { StrengthPanel } from "./strength-panel";
+import { CopyYesterdayButton } from "./copy-yesterday-button";
 
 type Dash={
   profile:{name:string;weightKg:number;canInvite:boolean};
@@ -230,7 +231,7 @@ function View({name,data,setModal,refresh}:{name:string;data:Dash;setModal:(x:an
   if(name==="Alimentação")return <section className="card overflow-hidden">
     <div className="flex items-center justify-between gap-3 border-b border-[#eee8f6] p-4 sm:p-5">
       <div><h2 className="text-xl font-black">Refeições de hoje</h2><p className="text-sm text-[#8c819b]">{data.foods.length+" itens registrados"}</p></div>
-      <button onClick={function(){setModal("food")}} className="btn-primary shrink-0">+ Adicionar</button>
+      <div className="flex flex-wrap items-center justify-end gap-2"><CopyYesterdayButton onCopied={refresh}/><button onClick={function(){setModal("food")}} className="btn-primary shrink-0">+ Adicionar</button></div>
     </div>
     {data.foods.length?data.foods.map(function(f:any){return <div key={f.id} className="grid grid-cols-[1fr_auto] gap-4 border-b border-[#f0ebf7] p-4 sm:p-5">
       <div className="min-w-0"><p className="truncate font-black">{f.name}</p><p className="mt-1 text-xs text-[#8c819b]">{f.mealType+" · "+f.quantity+" "+f.unit}</p></div>
