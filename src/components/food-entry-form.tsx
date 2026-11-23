@@ -231,7 +231,7 @@ export function FoodEntryForm({done}:{done:()=>void}) {
 
     {mode==='new'&&<div className="grid gap-3">
       <div className="rounded-xl bg-[#f6f2ff] p-4 text-sm leading-5 text-[#655778]">
-        Para alimentos industrializados ou receitas próprias, informe os dados de uma porção de referência. Depois o Forma day recalcula qualquer quantidade.
+        Para alimentos industrializados ou receitas próprias, informe os dados de uma porção de referência. Depois o Forma Day recalcula qualquer quantidade.
       </div>
       <input className="input" placeholder="Nome do alimento" value={newFood.name} onChange={e=>setNewFood({...newFood,name:e.target.value})}/>
       <div className="grid grid-cols-2 gap-3">
